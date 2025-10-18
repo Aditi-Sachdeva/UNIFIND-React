@@ -6,6 +6,7 @@ import ReportItem from "./pages/public/ReportItem";
 function App(){
   return(
     <div>
+      <Home/>
     </div>
   );
 }
