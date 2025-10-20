@@ -5,7 +5,6 @@ import Filters from '../../components/common/Filters';
 const ViewListings = () => {
   return (
     <div className="font-sans bg-white dark:bg-gray-900 dark:text-gray-200 min-h-screen flex flex-col">
-      <Navbar />
 
       <main className="p-4 md:p-6 flex-1">
         <h1 className="text-center text-xl md:text-3xl font-bold text-blue-600 mb-6">

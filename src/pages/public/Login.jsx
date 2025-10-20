@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from "../../components/layout/Navbar";
 import supabase from "../../supabaseClient";
+import { toast } from 'react-hot-toast';
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -14,12 +14,11 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
 
     const { email, password } = form;
 
     if (!email || !password) {
-      return setError('Both fields are required');
+      return toast.error('Both fields are required');
     }
 
     const { data, error: loginError } = await supabase.auth.signInWithPassword({
@@ -27,14 +26,16 @@ const Login = () => {
       password,
     });
 
-    if (loginError) return setError(loginError.message);
+    if (loginError) {
+      return toast.error(loginError.message);
+    }
 
+    toast.success('Login successful!');
     navigate('/');
   };
 
   return (
     <div className="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-white flex flex-col min-h-screen transition-colors duration-300">
-      <Navbar />
 
       <div className="flex flex-grow justify-center items-center p-4 dark:bg-gray-900">
         <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-sm border border-gray-300 dark:border-blue-500 transition-colors duration-300">
@@ -66,9 +67,6 @@ const Login = () => {
                 className="w-full p-2 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-400 dark:border-gray-600 focus:outline-none focus:border-blue-600 dark:focus:border-blue-400"
               />
             </div>
-
-            {/* Error Message */}
-            {error && <p className="text-red-500 text-sm">{error}</p>}
 
             {/* Submit */}
             <button

@@ -1,48 +1,37 @@
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import supabase from '../../supabaseClient';
 import ThemeToggle from '../common/ThemeToggle';
 
-function Navbar() {
-  const [user, setUser] = useState(null);
-  const [username, setUsername] = useState('');
+function Navbar({ user }) {
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef(null);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // Get current session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      const currentUser = session?.user;
-      setUser(currentUser);
-      if (currentUser) fetchUsername(currentUser.id);
-    });
-
-    // Listen for auth changes
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      const currentUser = session?.user;
-      setUser(currentUser);
-      if (currentUser) fetchUsername(currentUser.id);
-      else setUsername('');
-    });
-
-    return () => listener.subscription.unsubscribe();
-  }, []);
-
-  const fetchUsername = async (userId) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('username')
-      .eq('id', userId)
-      .single();
-
-    if (!error && data) setUsername(data.username);
-  };
+  const location = useLocation();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setUsername('');
-    navigate('/login'); // ✅ Redirect after logout
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error('Logout failed. Please try again.');
+    } else {
+      toast.success('Logged out successfully');
+      navigate('/');
+    }
   };
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const activeStyle = 'text-white bg-blue-600 border-2 border-blue-600 px-3 py-1 rounded-md text-sm hover:bg-blue-800 hover:border-blue-800 transition';
+  const inactiveStyle = 'text-gray-900 bg-gray-200 border-2 border-gray-200 px-3 py-1 rounded-md text-sm hover:bg-blue-600 hover:text-white dark:text-white dark:bg-gray-700 dark:border-gray-700 dark:hover:bg-blue-600 dark:hover:text-white';
 
   return (
     <nav className="bg-white dark:bg-gray-800">
@@ -55,56 +44,51 @@ function Navbar() {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex space-x-4 items-center">
-            <Link
-              to="/"
-              className="text-white bg-blue-600 border-2 border-blue-600 px-3 py-1 rounded-md text-sm hover:bg-blue-800 hover:border-blue-800 transition"
-            >
-              Home
-            </Link>
-            <Link
-              to="/report"
-              className="text-gray-900 bg-gray-200 border-2 border-gray-200 px-3 py-1 rounded-md text-sm hover:bg-blue-600 hover:text-white dark:text-white dark:bg-gray-700 dark:border-gray-700 dark:hover:bg-blue-600 dark:hover:text-white"
-            >
-              Report Item
-            </Link>
-            <Link
-              to="/listings"
-              className="text-gray-900 bg-gray-200 border-2 border-gray-200 px-3 py-1 rounded-md text-sm hover:bg-blue-600 hover:text-white dark:text-white dark:bg-gray-700 dark:border-gray-700 dark:hover:bg-blue-600 dark:hover:text-white"
-            >
-              View Listings
-            </Link>
+            <Link to="/" className={location.pathname === '/' ? activeStyle : inactiveStyle}>Home</Link>
+            <Link to="/report" className={location.pathname === '/report' ? activeStyle : inactiveStyle}>Report Item</Link>
+            <Link to="/listings" className={location.pathname === '/listings' ? activeStyle : inactiveStyle}>View Listings</Link>
           </div>
 
           {/* Right Side */}
           <div className="hidden md:flex space-x-4 items-center">
             <ThemeToggle />
-
             {user ? (
-              <>
-                <span className="text-sm text-blue-600 dark:text-blue-400 font-medium">
-                  👤 {username}
-                </span>
+              <div className="relative" ref={menuRef}>
                 <button
-                  onClick={handleLogout}
-                  className="text-white bg-red-600 border-2 border-red-600 px-3 py-1 rounded-md text-sm hover:bg-red-700 hover:border-red-700 transition"
+                  onClick={() => setOpen(!open)}
+                  className="flex items-center space-x-2 bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-md shadow-md text-gray-800 dark:text-gray-100 text-sm border border-gray-300 dark:border-gray-600"
                 >
-                  Logout
+                  <div className="w-7 h-7 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                    </svg>
+                  </div>
+                  <span>{user.username || user.email.split('@')[0]}</span>
                 </button>
-              </>
+
+                {open && (
+                  <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg z-50">
+                    {user.role === 'admin' && (
+                      <button
+                        onClick={() => navigate('/admin')}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        Admin Dashboard
+                      </button>
+                    )}
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               <>
-                <Link
-                  to="/login"
-                  className="text-white bg-blue-600 border-2 border-blue-600 px-3 py-1 rounded-md text-sm hover:bg-blue-800 hover:border-blue-800 transition"
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/signup"
-                  className="text-blue-600 bg-white border-2 border-blue-600 px-3 py-1 rounded-md text-sm dark:text-white dark:bg-gray-800 dark:border-gray-600 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:text-white transition"
-                >
-                  Signup
-                </Link>
+                <Link to="/login" className={location.pathname === '/login' ? activeStyle : inactiveStyle}>Login</Link>
+                <Link to="/signup" className={location.pathname === '/signup' ? activeStyle : inactiveStyle}>Signup</Link>
               </>
             )}
           </div>
@@ -113,24 +97,27 @@ function Navbar() {
           <div className="flex space-x-2 items-center md:hidden">
             <ThemeToggle />
             {user ? (
-              <>
-                <span className="text-sm text-blue-600 dark:text-blue-400 font-medium">
-                  👤 {username}
-                </span>
-                <button
-                  onClick={handleLogout}
-                  className="text-white bg-red-600 border-2 border-red-600 px-3 py-1 rounded-md text-sm hover:bg-red-700 hover:border-red-700 transition"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <Link
-                to="/login"
-                className="text-white bg-blue-600 border-2 border-blue-600 px-3 py-1 rounded-md text-sm hover:bg-blue-800 hover:border-blue-800 transition"
+              <button
+                onClick={handleLogout}
+                className="text-white bg-red-600 border-2 border-red-600 px-3 py-1 rounded-md text-sm hover:bg-red-700 hover:border-red-700 transition"
               >
-                Login
-              </Link>
+                Logout
+              </button>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className={location.pathname === '/login' ? activeStyle : inactiveStyle}
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className={location.pathname === '/signup' ? activeStyle : inactiveStyle}
+                >
+                  Signup
+                </Link>
+              </>
             )}
           </div>
         </div>

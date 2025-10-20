@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/layout/Navbar';
 import supabase from '../../supabaseClient';
+import { toast } from 'react-hot-toast';
 
 const Signup = () => {
   const [form, setForm] = useState({
@@ -10,7 +11,6 @@ const Signup = () => {
     password: '',
     confirmPassword: '',
   });
-  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -19,15 +19,14 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
 
     const { username, email, password, confirmPassword } = form;
 
     if (!username || !email || !password || !confirmPassword) {
-      return setError('All fields are required');
+      return toast.error('All fields are required');
     }
     if (password !== confirmPassword) {
-      return setError('Passwords do not match');
+      return toast.error('Passwords do not match');
     }
 
     const { data, error: signUpError } = await supabase.auth.signUp({
@@ -35,7 +34,12 @@ const Signup = () => {
       password,
     });
 
-    if (signUpError) return setError(signUpError.message);
+    if (signUpError) {
+      if (signUpError.message.toLowerCase().includes('already registered')) {
+        return toast.error('This email is already registered. Please log in instead.');
+      }
+      return toast.error(signUpError.message);
+    }
 
     const userId = data?.user?.id;
     if (userId) {
@@ -43,15 +47,15 @@ const Signup = () => {
         .from('profiles')
         .insert([{ id: userId, username }]);
 
-      if (profileError) return setError(profileError.message);
+      if (profileError) return toast.error(profileError.message);
     }
 
-    navigate('/');
+    toast.success('Signup successful! Please check your email to confirm.');
+    setTimeout(() => navigate('/login'), 3000);
   };
 
   return (
     <div className="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-white flex flex-col min-h-screen transition-colors duration-300">
-      <Navbar />
 
       <div className="flex flex-grow justify-center items-center p-4 dark:bg-gray-900">
         <div className="bg-white dark:bg-gray-800 p-4 sm:p-8 rounded-lg shadow-lg w-full max-w-md border border-blue-600 dark:border-blue-500 transition-colors duration-300">
@@ -105,9 +109,6 @@ const Signup = () => {
                 className="w-full p-2 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-400 dark:border-gray-500 focus:outline-none focus:border-blue-600 dark:focus:border-blue-400"
               />
             </div>
-
-            {/* Error Message */}
-            {error && <p className="text-red-500 text-sm">{error}</p>}
 
             {/* Submit */}
             <button
