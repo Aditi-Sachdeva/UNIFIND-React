@@ -1,4 +1,4 @@
-/*import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import supabase from './supabaseClient';
@@ -99,49 +99,54 @@ function App() {
   );
 }
 
-export default App;*/
-
-
-
-
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
-import AdminLayout from "./components/admin/AdminLayout";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminReports from "./pages/admin/AdminReports";
-
-const App = () => {
-  return (
-    <Router>
-      <Routes>
-        <Route
-          path="/dashboard"
-          element={
-            <AdminLayout>
-              <AdminDashboard />
-            </AdminLayout>
-          }
-        />
-        <Route
-          path="/manage-reports"
-          element={
-            <AdminLayout>
-              <AdminReports />
-            </AdminLayout>
-          }
-        />
-        <Route
-          path="*"
-          element={
-            <AdminLayout>
-              <AdminDashboard />
-            </AdminLayout>
-          }
-        />
-      </Routes>
-    </Router>
-  );
-};
-
 export default App;
+
+
+
+
+// import React from "react";
+// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+// import AdminLayout from "./components/admin/AdminLayout";
+// import AdminDashboard from "./pages/admin/AdminDashboard";
+// import AdminReports from "./pages/admin/AdminReports";
+
+// const App = () => {
+//   return (
+//     <Router>
+//       <Routes>
+//         <Route
+//           path="/dashboard"
+//           element={
+//             <AdminLayout>
+//               <AdminDashboard />
+//             </AdminLayout>
+//           }
+//         />
+//         <Route
+//           path="/manage-reports"
+//           element={
+//             <AdminLayout>
+//               <AdminReports />
+//             </AdminLayout>
+//           }
+//         />
+//         <Route
+//           path="*"
+//           element={
+//             <AdminLayout>
+//               <AdminDashboard />
+//             </AdminLayout>
+//           }
+//         />
+//       </Routes>
+//     </Router>
+//   );
+// };
+
+// export default App;
+
+
+
+
+
