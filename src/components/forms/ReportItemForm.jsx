@@ -112,7 +112,7 @@ const handleSubmit = async (e) => {
   
 
   return (
-    <div className="pt-8 px-4 pb-8 flex justify-center items-start h-auto md:h-[calc(100vh-64px)] overflow-auto md:overflow-hidden">
+    <div className="pt-8 px-4 pb-8 flex justify-center items-start md:h-[calc(100vh-64px)]  md:overflow-hidden">
       <div className="w-full max-w-md bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
         <h2 className="text-xl font-bold text-center text-blue-600 dark:text-blue-400 mb-4">
           Report Item

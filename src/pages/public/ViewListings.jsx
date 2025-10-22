@@ -60,7 +60,7 @@ const ViewListings = ({ user }) => {
   };
 
   return (
-    <div className="font-sans bg-white dark:bg-gray-900 dark:text-gray-200 min-h-screen flex flex-col">
+    <div className="font-sans bg-white dark:bg-gray-900 dark:text-gray-200 min-h-screen flex flex-col md:min-h-[calc(100vh-64px)] md:overflow-hidden">
       <main className="p-4 md:p-6 flex-1">
         <h1 className="text-center text-xl md:text-3xl font-bold text-blue-600 mb-6">
           My Reports
