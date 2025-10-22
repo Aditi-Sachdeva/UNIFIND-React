@@ -55,7 +55,7 @@ const Signup = () => {
   };
 
   return (
-    <div className="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-white flex flex-col min-h-screen transition-colors duration-300">
+    <div className="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-white flex flex-col min-h-screen transition-colors duration-300 md:min-h-[calc(100vh-64px)]">
 
       <div className="flex flex-grow justify-center items-center p-4 dark:bg-gray-900">
         <div className="bg-white dark:bg-gray-800 p-4 sm:p-8 rounded-lg shadow-lg w-full max-w-md border border-blue-600 dark:border-blue-500 transition-colors duration-300">

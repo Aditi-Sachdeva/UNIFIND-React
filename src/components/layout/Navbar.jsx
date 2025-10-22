@@ -111,12 +111,12 @@ function Navbar({ user }) {
                 >
                   Login
                 </Link>
-                <Link
+                {/* <Link
                   to="/signup"
                   className={location.pathname === '/signup' ? activeStyle : inactiveStyle}
                 >
                   Signup
-                </Link>
+                </Link> */}
               </>
             )}
           </div>
