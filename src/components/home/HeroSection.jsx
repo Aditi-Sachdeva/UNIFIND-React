@@ -7,7 +7,7 @@ function HeroSection() {
         className="bg-[url('/HomeImage.png')] bg-cover bg-center w-full h-[80vh] md:h-[calc(100vh-64px)] flex flex-col justify-center items-center text-center px-4 pt-16 bg-black/60 bg-blend-overlay"
       >
         {/* Hero Content */}
-        <div className="max-w-xl">
+        <div className="max-w-5xl">
           <h1 className="text-white text-3xl md:text-5xl font-bold mb-4">
             Lost & Found Management System
           </h1>
