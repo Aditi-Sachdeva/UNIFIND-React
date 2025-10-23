@@ -8,12 +8,19 @@ import {
   useLocation,
 } from 'react-router-dom';
 import supabase from './supabaseClient';
-import AdminDashboard from './pages/admin/AdminDashboard';
+
+// Public Pages
 import Home from './pages/public/Home';
 import ReportItem from './pages/public/ReportItem';
 import ViewListings from './pages/public/ViewListings';
 import Login from './pages/public/Login';
 import SignUp from './pages/public/SignUp';
+
+// Admin Pages
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminReports from './pages/admin/AdminReports';
+
+// Components
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Navbar from './components/layout/Navbar';
 
@@ -28,12 +35,22 @@ function AppContent() {
       const {
         data: { session },
       } = await supabase.auth.getSession();
+
       if (session?.user) {
         const { data } = await supabase
           .from('profiles')
-          .select('role, username')
+          .select('role, username, email')
           .eq('id', session.user.id)
           .single();
+
+        // Sync email if missing
+        if (!data?.email && session.user.email) {
+          await supabase
+            .from('profiles')
+            .update({ email: session.user.email })
+            .eq('id', session.user.id);
+        }
+
         setUser({
           ...session.user,
           role: data?.role || 'user',
@@ -52,10 +69,18 @@ function AppContent() {
         if (session?.user) {
           supabase
             .from('profiles')
-            .select('role, username')
+            .select('role, username, email')
             .eq('id', session.user.id)
             .single()
-            .then(({ data }) => {
+            .then(async ({ data }) => {
+              // Sync email if missing
+              if (!data?.email && session.user.email) {
+                await supabase
+                  .from('profiles')
+                  .update({ email: session.user.email })
+                  .eq('id', session.user.id);
+              }
+
               setUser({
                 ...session.user,
                 role: data?.role || 'user',
@@ -100,6 +125,14 @@ function AppContent() {
           element={
             <ProtectedRoute user={user} requireAdmin={true}>
               <AdminDashboard user={user} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/AdminReports"
+          element={
+            <ProtectedRoute user={user} requireAdmin={true}>
+              <AdminReports />
             </ProtectedRoute>
           }
         />
