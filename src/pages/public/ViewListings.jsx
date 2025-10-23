@@ -62,7 +62,7 @@ const ViewListings = ({ user }) => {
   return (
     <div className="font-sans bg-white dark:bg-gray-900 dark:text-gray-200 min-h-screen flex flex-col md:min-h-[calc(100vh-64px)] md:overflow-hidden">
       <main className="p-4 md:p-6 flex-1">
-        <h1 className="text-center text-xl md:text-3xl font-bold text-blue-600 mb-6">
+        <h1 className="text-center text-xl md:text-3xl font-bold text-blue-500 mb-6">
           My Reports
         </h1>
 
@@ -71,7 +71,7 @@ const ViewListings = ({ user }) => {
 
         <div className="overflow-x-auto rounded-lg shadow-lg">
           <table className="min-w-full text-sm border border-gray-300 dark:border-gray-700 rounded-lg">
-            <thead className="bg-blue-600 text-white">
+            <thead className="bg-blue-500 text-white">
               <tr>
                 <th className="px-4 py-2 text-left">Item Name</th>
                 <th className="px-4 py-2 text-left">Category</th>
