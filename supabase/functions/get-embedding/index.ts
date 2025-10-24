@@ -8,7 +8,7 @@ serve(async (req) => {
     {
       method: 'POST',
       headers: {
-        'Authorization': '70a9e4d63ee74855ae5eb8ddae489c9b',
+        'Authorization': 'Key 70a9e4d63ee74855ae5eb8ddae489c9b',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -29,6 +29,11 @@ serve(async (req) => {
   const embedding = result.outputs?.[0]?.data?.embeddings?.[0]?.vector;
 
   return new Response(JSON.stringify({ embedding }), {
-    headers: { 'Content-Type': 'application/json' },
-  });
+  headers: {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*', // ✅ This fixes the CORS error
+  },
+
 });
+});
+
