@@ -1,3 +1,4 @@
+
 // import React, { useState, useEffect } from 'react';
 // import { toast } from 'react-hot-toast';
 // import supabase from '../../supabaseClient';
@@ -248,6 +249,7 @@ export default function ManageUsers() {
         user.id === id ? { ...user, role: newRole } : user
       );
       setUsers(updated);
+      setFilteredUsers(updated); // update filtered list too
     }
   };
 
@@ -296,13 +298,19 @@ export default function ManageUsers() {
               <tbody className="bg-gray-50 dark:bg-gray-800 divide-y divide-gray-300 dark:divide-gray-700">
                 {loading ? (
                   <tr>
-                    <td colSpan={headings.length} className="text-center py-6 text-gray-500 dark:text-gray-400">
+                    <td
+                      colSpan={headings.length}
+                      className="text-center py-6 text-gray-500 dark:text-gray-400"
+                    >
                       Loading users...
                     </td>
                   </tr>
                 ) : filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={headings.length} className="text-center py-6 text-gray-500 dark:text-gray-400">
+                    <td
+                      colSpan={headings.length}
+                      className="text-center py-6 text-gray-500 dark:text-gray-400"
+                    >
                       No users found
                     </td>
                   </tr>
