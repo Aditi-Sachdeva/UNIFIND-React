@@ -1,49 +1,60 @@
 
 
 
-import React, { useEffect, useState } from 'react';
-import supabase from '../../supabaseClient';
-import { toast } from 'react-hot-toast';
-import AdminNavbar from '../../components/admin/AdminNavbar';
-import AdminSidebar from '../../components/admin/AdminSidebar';
-import MobileInfoBoxes from '../../components/admin/MobileInfoBoxes';
-import VerifiedReportsTable from '../../components/admin/VerifiedReportsTable';
+
+
+
+
+import React, { useEffect, useState } from "react";
+import supabase from "../../supabaseClient";
+import { toast } from "react-hot-toast";
+import AdminNavbar from "../../components/admin/AdminNavbar";
+import AdminSidebar from "../../components/admin/AdminSidebar";
+import MobileInfoBoxes from "../../components/admin/MobileInfoBoxes";
 
 export default function AdminReports() {
   const [reports, setReports] = useState([]);
   const [filteredReports, setFilteredReports] = useState([]);
-  const [verifiedReports, setVerifiedReports] = useState([]);
+   const [verifiedReports, setVerifiedReports] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [loadingVerified, setLoadingVerified] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [loadingVerified, setLoadingVerified] = useState(false);
+
 
   const headings = [
-    "Email", "Item Name", "Category", "Description", "Date & Time",
-    "Location", "Status", "Contact", "Image", "Actions"
+    "Email",
+    "Item Name",
+    "Category",
+    "Description",
+    "Date & Time",
+    "Location",
+    "Status",
+    "Contact",
+    "Image",
+    "Actions",
   ];
 
   useEffect(() => {
     fetchReports();
-    fetchVerifiedReports();
   }, []);
 
+  // Fetch reports
   const fetchReports = async () => {
     const { data, error } = await supabase
-      .from('reports')
-      .select(`*, profiles (email)`)
-      .order('created_at', { ascending: false });
+      .from("reports")
+      .select("*, profiles(email)")
+      .order("created_at", { ascending: false });
 
     if (error) {
-      console.error('Error fetching reports:', error.message);
-      toast.error('Failed to load reports');
+      console.error("Error fetching reports:", error.message);
+      toast.error("Failed to load reports");
     } else {
       setReports(data);
       setFilteredReports(data);
     }
     setLoading(false);
   };
-
   const fetchVerifiedReports = async () => {
   setLoadingVerified(true);
   const { data, error } = await supabase
@@ -67,22 +78,24 @@ export default function AdminReports() {
   setLoadingVerified(false);
 };
 
-
+  // Delete a report
   const handleDelete = async (id) => {
-    const { error } = await supabase.from('reports').delete().eq('id', id);
+    const { error } = await supabase.from("reports").delete().eq("id", id);
     if (error) {
-      toast.error('Failed to delete report');
+      toast.error("Failed to delete report");
     } else {
-      toast.success('Report deleted');
+      toast.success("Report deleted");
       setReports((prev) => prev.filter((r) => r.id !== id));
       setFilteredReports((prev) => prev.filter((r) => r.id !== id));
     }
   };
 
+  // Search and filter logic
   const handleSearch = () => {
     const term = searchTerm.toLowerCase();
     const filtered = reports.filter((r) => {
-      const matchesCategory = selectedCategory === '' || r.category === selectedCategory;
+      const matchesCategory =
+        selectedCategory === "" || r.category === selectedCategory;
       const matchesSearch =
         r.item_name?.toLowerCase().includes(term) ||
         r.location?.toLowerCase().includes(term) ||
@@ -92,9 +105,11 @@ export default function AdminReports() {
     setFilteredReports(filtered);
   };
 
-const normalize = (str) => str?.toLowerCase().trim();
+  // Normalize helper
+  const normalize = (str) => str?.toLowerCase().trim();
 
-const verifyMatches = async () => {
+  // Verify lost-found matches
+  const verifyMatches = async () => {
   console.log(' Verify button clicked');
   toast.loading('Verifying matches...');
 
@@ -193,21 +208,18 @@ const verifyMatches = async () => {
 };
 
 
-
-
-
-
   return (
     <div className="bg-white dark:bg-gray-900 min-h-screen">
       <AdminNavbar />
       <div className="flex">
         <AdminSidebar />
+
         <main className="flex-1 ml-48 mt-5 lg:ml-64 p-4 space-y-6">
           <MobileInfoBoxes />
 
-          {/* Search + Verify Controls */}
+          {/* Search & Filter Controls */}
           <div className="w-full flex justify-center">
-            <div className="flex flex-wrap gap-2 justify-center items-center text-center mb-2">
+            <div className="flex flex-wrap gap-2 justify-center items-center mb-4">
               <input
                 type="text"
                 value={searchTerm}
@@ -215,6 +227,7 @@ const verifyMatches = async () => {
                 placeholder="Search listings..."
                 className="px-3 py-2 bg-white dark:bg-gray-800 dark:text-white rounded-md border border-gray-300 dark:border-gray-700 w-full sm:w-72 outline-none focus:ring-2 focus:ring-blue-500"
               />
+
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
@@ -227,12 +240,14 @@ const verifyMatches = async () => {
                 <option>Accessories</option>
                 <option>Others</option>
               </select>
+
               <button
                 onClick={handleSearch}
                 className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-white transition"
               >
                 Search
               </button>
+
               <button
                 onClick={verifyMatches}
                 className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md text-white transition"
@@ -243,7 +258,7 @@ const verifyMatches = async () => {
           </div>
 
           {/* Reports Table */}
-          <div className="overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900">
+          <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-900">
             <table className="min-w-full text-sm text-left">
               <thead className="bg-blue-600 text-white sticky top-0 z-10">
                 <tr>
@@ -254,65 +269,57 @@ const verifyMatches = async () => {
                   ))}
                 </tr>
               </thead>
-              <tbody className="bg-gray-50 dark:bg-gray-800 divide-y divide-gray-300 dark:divide-gray-700">
+
+              <tbody className="text-white divide-y divide-gray-700">
                 {loading ? (
                   <tr>
-                    <td colSpan={headings.length} className="text-center py-6 text-gray-500 dark:text-gray-400">
+                    <td
+                      colSpan={headings.length}
+                      className="text-center py-6 text-gray-400"
+                    >
                       Loading reports...
                     </td>
                   </tr>
                 ) : filteredReports.length === 0 ? (
                   <tr>
-                    <td colSpan={headings.length} className="text-center py-6 text-gray-500 dark:text-gray-400">
+                    <td
+                      colSpan={headings.length}
+                      className="text-center py-6 text-gray-400"
+                    >
                       No reports found
                     </td>
                   </tr>
                 ) : (
                   filteredReports.map((report) => (
-                    <tr key={report.id} className="hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                      <td className="px-4 py-4 text-gray-800 dark:text-gray-100 break-words max-w-[200px]">
-                        {report.profiles?.email || "—"}
-                      </td>
-                      <td className="px-4 py-4 text-gray-800 dark:text-gray-100">{report.item_name}</td>
-                      <td className="px-4 py-4 text-gray-800 dark:text-gray-100">{report.category}</td>
-                      <td className="px-4 py-4 text-gray-800 dark:text-gray-100">{report.description}</td>
-                      <td className="px-4 py-4 text-gray-800 dark:text-gray-100">
+                    <tr
+                      key={report.id}
+                      className="hover:bg-gray-800 transition"
+                    >
+                      <td className="px-4 py-4">{report.profiles?.email || "—"}</td>
+                      <td className="px-4 py-4">{report.item_name}</td>
+                      <td className="px-4 py-4">{report.category}</td>
+                      <td className="px-4 py-4">{report.description}</td>
+                      <td className="px-4 py-4">
                         {new Date(report.created_at).toLocaleString()}
                       </td>
-                      <td className="px-4 py-4 text-gray-800 dark:text-gray-100">{report.location}</td>
-                      
-
-
-
-                      <td className="px-4 py-4 text-gray-800 dark:text-gray-100">{report.contact_info}</td>
-                     
-
-
-                     
-
-
-
-<td className="px-4 py-4">
-  {report.image_url ? (
-    <img
-      src={report.image_url}
-      alt="Report"
-      className="h-10 w-10 object-cover rounded"
-    />
-  ) : (
-    <span className="text-gray-500 dark:text-gray-400">—</span>
-  )}
-</td>
-
-
-
+                      <td className="px-4 py-4">{report.location}</td>
+                      <td className="px-4 py-4">{report.status}</td>
+                      <td className="px-4 py-4">{report.contact_info}</td>
                       <td className="px-4 py-4">
-                        
-
-
+                        {report.image_url ? (
+                          <img
+                            src={report.image_url}
+                            alt="Report"
+                            className="h-10 w-10 object-cover rounded"
+                          />
+                        ) : (
+                          <span className="text-gray-400">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-4">
                         <button
                           onClick={() => handleDelete(report.id)}
-                          className="text-red-600 hover:underline"
+                          className="text-red-500 hover:underline"
                         >
                           Delete
                         </button>
@@ -322,19 +329,9 @@ const verifyMatches = async () => {
                 )}
               </tbody>
             </table>
-            
           </div>
-          
-
         </main>
       </div>
     </div>
   );
 }
-
-
-
-
-
-
-
