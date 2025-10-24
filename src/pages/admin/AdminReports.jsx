@@ -102,6 +102,7 @@ export default function AdminReports() {
                 <option>Books</option>
                 <option>Clothing</option>
                 <option>Accessories</option>
+                <option>Others</option>
               </select>
               <button
                 onClick={handleSearch}
@@ -191,3 +192,10 @@ export default function AdminReports() {
     </div>
   );
 }
+
+
+
+
+
+
+
