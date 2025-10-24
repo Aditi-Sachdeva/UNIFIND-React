@@ -225,6 +225,7 @@ const verifyMatches = async () => {
                 <option>Books</option>
                 <option>Clothing</option>
                 <option>Accessories</option>
+                <option>Others</option>
               </select>
               <button
                 onClick={handleSearch}
@@ -330,3 +331,10 @@ const verifyMatches = async () => {
     </div>
   );
 }
+
+
+
+
+
+
+

@@ -19,6 +19,7 @@ import SignUp from './pages/public/SignUp';
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminReports from './pages/admin/AdminReports';
+import ManageUsers from './pages/admin/ManageUsers';
 
 // Components
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -43,7 +44,7 @@ function AppContent() {
           .eq('id', session.user.id)
           .single();
 
-        // Sync email if missing
+        // Ensure email is synced to profiles table
         if (!data?.email && session.user.email) {
           await supabase
             .from('profiles')
@@ -73,7 +74,6 @@ function AppContent() {
             .eq('id', session.user.id)
             .single()
             .then(async ({ data }) => {
-              // Sync email if missing
               if (!data?.email && session.user.email) {
                 await supabase
                   .from('profiles')
@@ -93,7 +93,9 @@ function AppContent() {
       }
     );
 
-    return () => listener.subscription.unsubscribe();
+    return () => {
+      if (listener?.subscription) listener.subscription.unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
@@ -111,6 +113,7 @@ function AppContent() {
       <Toaster position="top-right" />
       {!location.pathname.startsWith('/admin') && <Navbar user={user} />}
       <Routes>
+        {/* Public Routes */}
         <Route path="/" element={<Home user={user} />} />
         <Route
           path="/signup"
@@ -120,6 +123,8 @@ function AppContent() {
           path="/login"
           element={loading ? null : user ? <Navigate to="/" /> : <Login />}
         />
+
+        {/* Admin Routes */}
         <Route
           path="/admin"
           element={
@@ -136,6 +141,16 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute user={user} requireAdmin={true}>
+              <ManageUsers />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* User Routes */}
         <Route
           path="/report"
           element={
