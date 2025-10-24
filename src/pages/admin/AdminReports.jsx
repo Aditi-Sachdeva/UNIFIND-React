@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 import React, { useEffect, useState } from "react";
 import supabase from "../../supabaseClient";
 import { toast } from "react-hot-toast";
@@ -235,9 +228,18 @@ export default function AdminReports() {
               >
                 <option value="">All Categories</option>
                 <option>Electronics</option>
+                <option>Accessories</option>
                 <option>Books</option>
                 <option>Clothing</option>
-                <option>Accessories</option>
+                <option>Footwear</option>
+                <option>Bags & Wallets</option>
+                <option>Stationery</option>
+                <option>ID & Access Cards</option>
+                <option>Documents</option>
+                <option>Keys</option>
+                <option>Eyewear</option>
+                <option>Sports & Gym Gear</option>
+                <option>Water Bottles & Drinkware</option>
                 <option>Others</option>
               </select>
 
