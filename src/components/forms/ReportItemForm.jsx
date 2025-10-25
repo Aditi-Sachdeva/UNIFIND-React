@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import CreatableSelect from "react-select/creatable";
 import supabase from "../../supabaseClient";
 
 // Corrected: Function to get current IST datetime in YYYY-MM-DDTHH:MM format
 const getCurrentISTDateTime = () => {
   const now = new Date();
-  // Convert UTC time to IST by adding 5 hours 30 minutes
   const istTime = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
 
   const year = istTime.getUTCFullYear();
@@ -23,7 +21,7 @@ export default function ReportItemForm({ user }) {
     itemName: "",
     category: "Electronics",
     description: "",
-    dateTime: getCurrentISTDateTime(), // Default to current IST
+    dateTime: getCurrentISTDateTime(),
     location: "",
     status: "Lost",
     contactInfo: "",
@@ -31,41 +29,18 @@ export default function ReportItemForm({ user }) {
   });
 
   const locationOptions = [
-    { value: "Alpha Zone", label: "Alpha Zone" },
-    { value: "Beta Zone", label: "Beta Zone" },
-    { value: "Omega Zone", label: "Omega Zone" },
-    { value: "Central Library", label: "Central Library" },
-    { value: "Chitkara Woods", label: "Chitkara Woods" },
-    { value: "Girls Hostel", label: "Girls Hostel" },
-    { value: "Boys Hostel", label: "Boys Hostel" },
-    { value: "SQ1", label: "SQ1" },
-    { value: "SQ2", label: "SQ2" },
-    { value: "Exploratorium", label: "Exploratorium" },
-    { value: "Sportorium", label: "Sportorium" },
-    { value: "Gym", label: "Gym" },
-    { value: "Turing Block", label: "Turing Block" },
-    { value: "De Morgan Block", label: "De Morgan Block" },
-    { value: "Fleming Block", label: "Fleming Block" },
-    { value: "Edison Block", label: "Edison Block" },
-    { value: "Newton Block", label: "Newton Block" },
-    { value: "Turing Extension", label: "Turing Extension" },
-    { value: "Martin Luther Block", label: "Martin Luther Block" },
-    { value: "Rockfeller Block", label: "Rockfeller Block" },
-    { value: "Le Corbusier Block", label: "Le Corbusier Block" },
-    { value: "Babbage Block", label: "Babbage Block" },
-    { value: "Picasso Block", label: "Picasso Block" },
-    { value: "Main Bus Parking", label: "Main Bus Parking" },
-    { value: "Rockfeller Bus Parking", label: "Rockfeller Bus Parking" },
-    { value: "Tuck Shop 1", label: "Tuck Shop 1" },
-    { value: "Tuck Shop 2", label: "Tuck Shop 2" },
-    { value: "Moon Block", label: "Moon Block" },
-    { value: "Escoffier Block", label: "Escoffier Block" },
-    { value: "Go Global Office", label: "Go Global Office" },
-    { value: "Explore Hub", label: "Explore Hub" },
-    { value: "Studio 401", label: "Studio 401" },
-    { value: "Art Gallery", label: "Art Gallery" },
-    { value: "Main Gate", label: "Main Gate" },
-    { value: "Law School", label: "Law School" },
+    "Alpha Zone",
+    "Central Library",
+    "Girls Hostel",
+    "Boys Hostel",
+    "SQ1",
+    "SQ2",
+    "Exploratorium",
+    "Sportorium",
+    "Turing Block",
+    "Martin Luther Block",
+    "Rockfeller Block",
+    "Main Gate",
   ];
 
   const handleChange = (e) => {
@@ -189,7 +164,7 @@ export default function ReportItemForm({ user }) {
             </div>
           </div>
 
-          {/* Row 2: Description */}
+          {/* Description */}
           <div>
             <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
               Description
@@ -205,7 +180,7 @@ export default function ReportItemForm({ user }) {
             />
           </div>
 
-          {/* Row 3: Date & Time + Location */}
+          {/* Date & Time + Location */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
@@ -221,45 +196,29 @@ export default function ReportItemForm({ user }) {
               />
             </div>
 
-            {/* Location */}
+            {/* Location dropdown (same style as Category) */}
             <div>
               <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
                 Location
               </label>
-
-              <CreatableSelect
-                options={locationOptions}
-                value={
-                  formData.location
-                    ? { value: formData.location, label: formData.location }
-                    : null
-                }
-                onChange={(selected) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    location: selected ? selected.value : "",
-                  }))
-                }
-                placeholder="Select location"
-                menuPlacement="bottom"
-                className="text-black dark:text-white"
-                styles={{
-                  control: (base) => ({
-                    ...base,
-                    backgroundColor: "#e5e7eb",
-                    borderRadius: "0.375rem",
-                    borderColor: "#d1d5db",
-                    minHeight: "40px",
-                  }),
-                  menu: (base) => ({ ...base, zIndex: 9999 }),
-                  singleValue: (base) => ({ ...base, color: "black" }),
-                  placeholder: (base) => ({ ...base, color: "black" }),
-                }}
-              />
+              <select
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700 text-black dark:text-white focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                required
+              >
+                <option value="">Select Location</option>
+                {locationOptions.map((loc) => (
+                  <option key={loc} value={loc}>
+                    {loc}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
-          {/* Row 4: Status + Contact Info */}
+          {/* Status + Contact */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
@@ -290,7 +249,7 @@ export default function ReportItemForm({ user }) {
             </div>
           </div>
 
-          {/* Row 5: Upload Image */}
+          {/* Image Upload */}
           <div>
             <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
               Upload Image
@@ -303,7 +262,7 @@ export default function ReportItemForm({ user }) {
             />
           </div>
 
-          {/* Submit Button */}
+          {/* Submit */}
           <button
             type="submit"
             className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded transition"
@@ -315,3 +274,4 @@ export default function ReportItemForm({ user }) {
     </div>
   );
 }
+
