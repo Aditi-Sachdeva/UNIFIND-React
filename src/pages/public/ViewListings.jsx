@@ -66,7 +66,6 @@ const ViewListings = ({ user }) => {
           My Reports
         </h1>
 
-        {/* ✅ This is where you use Filters with onFilter */}
         <Filters onFilter={setFilters} />
 
         <div className="overflow-x-auto rounded-lg shadow-lg">
@@ -103,7 +102,12 @@ const ViewListings = ({ user }) => {
                     <td className="px-4 py-2">{report.item_name}</td>
                     <td className="px-4 py-2">{report.category}</td>
                     <td className="px-4 py-2">{report.description}</td>
-                    <td className="px-4 py-2">{new Date(report.date_time).toLocaleString()}</td>
+                    <td className="px-4 py-2">
+                      {report.date_time
+                        .replace('T', ' ')      // Replace T with space
+                        .replace('+00', '')     // Remove timezone
+                        .slice(0, 16)}          
+                    </td>
                     <td className="px-4 py-2">{report.location}</td>
                     <td className="px-4 py-2">{report.status}</td>
                     <td className="px-4 py-2">{report.contact_info}</td>
@@ -144,17 +148,3 @@ const ViewListings = ({ user }) => {
 };
 
 export default ViewListings;
-
-
-
-
-
-
-
-
-
-
-
-
-
-

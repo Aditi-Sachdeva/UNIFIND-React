@@ -2,7 +2,6 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import supabase from "../../supabaseClient";
 
-// Corrected: Function to get current IST datetime in YYYY-MM-DDTHH:MM format
 const getCurrentISTDateTime = () => {
   const now = new Date();
   const istTime = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
@@ -12,8 +11,9 @@ const getCurrentISTDateTime = () => {
   const day = String(istTime.getUTCDate()).padStart(2, "0");
   const hours = String(istTime.getUTCHours()).padStart(2, "0");
   const minutes = String(istTime.getUTCMinutes()).padStart(2, "0");
+  const seconds = String(istTime.getUTCSeconds()).padStart(2, "0");
 
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 };
 
 export default function ReportItemForm({ user }) {
@@ -28,19 +28,12 @@ export default function ReportItemForm({ user }) {
     image: null,
   });
 
+  const [loading, setLoading] = useState(false);
+
   const locationOptions = [
-    "Alpha Zone",
-    "Central Library",
-    "Girls Hostel",
-    "Boys Hostel",
-    "SQ1",
-    "SQ2",
-    "Exploratorium",
-    "Sportorium",
-    "Turing Block",
-    "Martin Luther Block",
-    "Rockfeller Block",
-    "Main Gate",
+    "Alpha Zone", "Central Library", "Girls Hostel", "Boys Hostel", "SQ1", "SQ2",
+    "Exploratorium", "Sportorium", "Turing Block", "Martin Luther Block",
+    "Rockfeller Block", "Main Gate",
   ];
 
   const handleChange = (e) => {
@@ -54,9 +47,12 @@ export default function ReportItemForm({ user }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
+    setLoading(true);
 
     if (!user || !user.id) {
       toast.error("You must be logged in");
+      setLoading(false);
       return;
     }
 
@@ -72,6 +68,7 @@ export default function ReportItemForm({ user }) {
       if (uploadError) {
         toast.error("Image upload failed");
         console.error("Upload error:", uploadError);
+        setLoading(false);
         return;
       }
 
@@ -87,7 +84,7 @@ export default function ReportItemForm({ user }) {
         item_name: formData.itemName,
         category: formData.category,
         description: formData.description,
-        date_time: formData.dateTime || getCurrentISTDateTime(),
+        date_time: formData.dateTime,
         location: formData.location,
         status: formData.status,
         contact_info: formData.contactInfo,
@@ -96,7 +93,7 @@ export default function ReportItemForm({ user }) {
     ]);
 
     if (error) {
-      console.error("Supabase insert error:", error);
+      console.error("Supabase insert error:", error.message, error.details);
       toast.error("Submission failed");
     } else {
       toast.success("Report submitted");
@@ -111,6 +108,8 @@ export default function ReportItemForm({ user }) {
         image: null,
       });
     }
+
+    setLoading(false);
   };
 
   return (
@@ -195,8 +194,6 @@ export default function ReportItemForm({ user }) {
                 required
               />
             </div>
-
-            {/* Location dropdown (same style as Category) */}
             <div>
               <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
                 Location
@@ -218,7 +215,7 @@ export default function ReportItemForm({ user }) {
             </div>
           </div>
 
-          {/* Status + Contact */}
+          {/* Status + Contact Info */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
@@ -265,13 +262,17 @@ export default function ReportItemForm({ user }) {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded transition"
+            disabled={loading}
+            className={`w-full h-12 font-bold rounded transition ${
+              loading
+                ? "bg-blue-300 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600 text-white"
+            }`}
           >
-            Report Item
+            {loading ? "Submitting..." : "Report Item"}
           </button>
         </form>
       </div>
     </div>
   );
 }
-
