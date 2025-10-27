@@ -47,7 +47,16 @@ const Signup = () => {
         .from('profiles')
         .insert([{ id: userId, username }]);
 
-      if (profileError) return toast.error(profileError.message);
+      if (profileError) {
+        const msg = profileError.message.toLowerCase();
+        if (
+          msg.includes('foreign key constraint') &&
+          msg.includes('profiles_id_fkey')
+        ) {
+          return toast.error('This email is already registered. Please log in instead.');
+        }
+        return toast.error(profileError.message);
+      }
     }
 
     toast.success('Signup successful! Please check your email to confirm.');
@@ -56,7 +65,6 @@ const Signup = () => {
 
   return (
     <div className="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-white flex flex-col min-h-screen transition-colors duration-300 md:min-h-[calc(100vh-64px)]">
-
       <div className="flex flex-grow justify-center items-center p-4 dark:bg-gray-900">
         <div className="bg-white dark:bg-gray-800 p-4 sm:p-8 rounded-lg shadow-lg w-full max-w-md border border-blue-600 dark:border-blue-500 transition-colors duration-300">
           <h2 className="text-2xl font-bold text-center text-blue-600 dark:text-blue-400 mb-6">Signup</h2>
