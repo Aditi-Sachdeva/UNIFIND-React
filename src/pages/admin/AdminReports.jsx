@@ -8,12 +8,9 @@ import MobileInfoBoxes from "../../components/admin/MobileInfoBoxes";
 export default function AdminReports() {
   const [reports, setReports] = useState([]);
   const [filteredReports, setFilteredReports] = useState([]);
-   const [verifiedReports, setVerifiedReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [loadingVerified, setLoadingVerified] = useState(false);
-
 
   const headings = [
     "Email",
@@ -32,7 +29,6 @@ export default function AdminReports() {
     fetchReports();
   }, []);
 
-  // Fetch reports
   const fetchReports = async () => {
     const { data, error } = await supabase
       .from("reports")
@@ -48,30 +44,7 @@ export default function AdminReports() {
     }
     setLoading(false);
   };
-  const fetchVerifiedReports = async () => {
-  setLoadingVerified(true);
-  const { data, error } = await supabase
-    .from('verified_reports')
-    .select(`
-      id,
-      verified_at,
-      lost:reports!verified_reports_lost_id_fkey (
-        item_name, category, location, contact_info, image_url
-      ),
-      found:reports!verified_reports_found_id_fkey (
-        item_name, category, location, contact_info, image_url
-      )
-    `);
 
-  if (error) {
-    console.error('Error fetching verified reports:', error.message);
-  } else {
-    setVerifiedReports(data);
-  }
-  setLoadingVerified(false);
-};
-
-  // Delete a report
   const handleDelete = async (id) => {
     const { error } = await supabase.from("reports").delete().eq("id", id);
     if (error) {
@@ -83,7 +56,6 @@ export default function AdminReports() {
     }
   };
 
-  // Search and filter logic
   const handleSearch = () => {
     const term = searchTerm.toLowerCase();
     const filtered = reports.filter((r) => {
@@ -98,119 +70,99 @@ export default function AdminReports() {
     setFilteredReports(filtered);
   };
 
-  // Normalize helper
   const normalize = (str) => str?.toLowerCase().trim();
 
-  // Verify lost-found matches
+  const fuzzyMatch = (a, b) => {
+    const normA = normalize(a);
+    const normB = normalize(b);
+    return normA && normB && (normA.includes(normB) || normB.includes(normA));
+  };
+
+  const keywordMatch = (a, b) => {
+    const keywordsA = normalize(a).split(/\s+/);
+    const keywordsB = normalize(b).split(/\s+/);
+    const common = keywordsA.filter((word) => keywordsB.includes(word));
+    return common.length >= 2;
+  };
+
   const verifyMatches = async () => {
-  console.log(' Verify button clicked');
-  toast.loading('Verifying matches...');
+    toast.loading("Verifying matches...");
+    try {
+      const verified = [];
+      const lostReports = reports.filter((r) => r.status === "Lost");
+      const foundReports = reports.filter((r) => r.status === "Found");
 
-  try {
-    const verified = [];
+      for (const lost of lostReports) {
+        for (const found of foundReports) {
+          let matchScore = 0;
 
-    // Step 1: Filter lost and found reports
-    const lostReports = reports.filter((r) => r.status === 'Lost');
-    const foundReports = reports.filter((r) => r.status === 'Found');
+          if (fuzzyMatch(lost.item_name, found.item_name)) matchScore++;
+          if (fuzzyMatch(lost.category, found.category)) matchScore++;
+          if (keywordMatch(lost.description, found.description)) matchScore++;
+          if (fuzzyMatch(lost.location, found.location)) matchScore++;
+          if (
+            lost.image_url &&
+            found.image_url &&
+            normalize(lost.image_url) === normalize(found.image_url)
+          )
+            matchScore++;
 
-    console.log(`📦 Found ${lostReports.length} lost reports`);
-    console.log(`📦 Found ${foundReports.length} found reports`);
+          if (matchScore >= 3) {
+            const { data: existing, error: checkError } = await supabase
+              .from("verified_reports")
+              .select("id")
+              .eq("lost_id", lost.id)
+              .eq("found_id", found.id)
+              .maybeSingle();
 
-    // Step 2: Compare each lost–found pair
-    for (const lost of lostReports) {
-      for (const found of foundReports) {
-        console.log('🔍 Comparing pair:', {
-          lost: {
-            id: lost.id,
-            item_name: lost.item_name,
-            category: lost.category,
-            location: lost.location,
-            description: lost.description,
-          },
-          found: {
-            id: found.id,
-            item_name: found.item_name,
-            category: found.category,
-            location: found.location,
-            description: found.description,
-          },
-        });
+            if (checkError && checkError.code !== "PGRST116") {
+              console.error("Error checking existing match:", checkError.message);
+              continue;
+            }
 
-        const metadataMatch =
-          normalize(lost.item_name) === normalize(found.item_name) &&
-          normalize(lost.category) === normalize(found.category) &&
-          normalize(lost.location) === normalize(found.location) &&
-          normalize(lost.description) === normalize(found.description);
+            if (!existing) {
+              const { error: insertError } = await supabase
+                .from("verified_reports")
+                .insert({
+                  lost_id: lost.id,
+                  found_id: found.id,
+                  verified_at: new Date().toISOString(),
+                  match_score: matchScore,
+                  lost_email: lost.profiles?.email || null,
+                  found_email: found.profiles?.email || null,
+                  status: "Pending",
+                });
 
-        console.log(`🧠 Metadata match: ${metadataMatch}`);
-
-        if (metadataMatch) {
-          // Step 3: Check if match already exists
-          const { data: existing, error: checkError } = await supabase
-            .from('verified_reports')
-            .select('id')
-            .eq('lost_id', lost.id)
-            .eq('found_id', found.id)
-            .maybeSingle();
-
-          if (checkError && checkError.code !== 'PGRST116') {
-            console.error('❌ Error checking existing match:', checkError.message);
-            continue;
-          }
-
-          if (existing) {
-            console.log('⚠️ Match already exists, skipping insert');
-          } else {
-            // Step 4: Insert verified match
-            const { error: insertError } = await supabase.from('verified_reports').insert({
-              lost_id: lost.id,
-              found_id: found.id,
-              verified_at: new Date().toISOString(),
-            });
-
-            if (insertError) {
-              console.error('❌ Insert failed:', insertError.message);
-            } else {
-              console.log('✅ Match inserted:', { lost_id: lost.id, found_id: found.id });
-              toast.success(`Verified: ${lost.item_name}`);
-              verified.push({ lost_id: lost.id, found_id: found.id });
+              if (!insertError) {
+                toast.success(`Verified: ${lost.item_name}`);
+                verified.push({ lost_id: lost.id, found_id: found.id });
+              } else {
+                console.error("Insert failed:", insertError.message);
+              }
             }
           }
         }
       }
+
+      if (verified.length === 0) {
+        toast("No matches found");
+      }
+    } catch (err) {
+      console.error("Error in verifyMatches:", err);
+      toast.error("Something went wrong");
+    } finally {
+      toast.dismiss();
     }
-
-    // Step 5: Final feedback
-    if (verified.length === 0) {
-      console.log('🚫 No matches found');
-      toast('No matches found');
-    } else {
-      console.log(`🎉 Total verified matches inserted: ${verified.length}`);
-    }
-
-    // Step 6: Refresh verified reports
-    console.log('🔄 Refreshing verified reports...');
-    await fetchVerifiedReports();
-  } catch (err) {
-    console.error('❌ Error in verifyMatches:', err);
-    toast.error('Something went wrong');
-  } finally {
-    toast.dismiss();
-    console.log('🧹 Verification process complete');
-  }
-};
-
+  };
 
   return (
     <div className="bg-white dark:bg-gray-900 min-h-screen">
       <AdminNavbar />
       <div className="flex">
         <AdminSidebar />
-
         <main className="flex-1 ml-48 mt-5 lg:ml-64 p-4 space-y-6">
           <MobileInfoBoxes />
 
-          {/* Search & Filter Controls */}
           <div className="w-full flex justify-center">
             <div className="flex flex-wrap gap-2 justify-center items-center mb-4">
               <input
@@ -220,7 +172,6 @@ export default function AdminReports() {
                 placeholder="Search listings..."
                 className="px-3 py-2 bg-white dark:bg-gray-800 dark:text-white rounded-md border border-gray-300 dark:border-gray-700 w-full sm:w-72 outline-none focus:ring-2 focus:ring-blue-500"
               />
-
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
@@ -242,14 +193,12 @@ export default function AdminReports() {
                 <option>Water Bottles & Drinkware</option>
                 <option>Others</option>
               </select>
-
               <button
                 onClick={handleSearch}
                 className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-white transition"
               >
                 Search
               </button>
-
               <button
                 onClick={verifyMatches}
                 className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md text-white transition"
@@ -259,7 +208,6 @@ export default function AdminReports() {
             </div>
           </div>
 
-          {/* Reports Table */}
           <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-900">
             <table className="min-w-full text-sm text-left">
               <thead className="bg-blue-600 text-white sticky top-0 z-10">
@@ -271,37 +219,27 @@ export default function AdminReports() {
                   ))}
                 </tr>
               </thead>
-
               <tbody className="text-white divide-y divide-gray-700">
                 {loading ? (
                   <tr>
-                    <td
-                      colSpan={headings.length}
-                      className="text-center py-6 text-gray-400"
-                    >
+                    <td colSpan={headings.length} className="text-center py-6 text-gray-400">
                       Loading reports...
                     </td>
                   </tr>
                 ) : filteredReports.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={headings.length}
-                      className="text-center py-6 text-gray-400"
-                    >
-                      No reports found
+                    <td colSpan={headings.length} className="text-center py-6 text-gray-400">
+                      No reports found.
                     </td>
                   </tr>
                 ) : (
                   filteredReports.map((report) => (
-                    <tr
-                      key={report.id}
-                      className="hover:bg-gray-800 transition"
-                    >
+                    <tr key={report.id} className="hover:bg-gray-800 transition">
                       <td className="px-4 py-4">{report.profiles?.email || "—"}</td>
                       <td className="px-4 py-4">{report.item_name}</td>
                       <td className="px-4 py-4">{report.category}</td>
                       <td className="px-4 py-4">{report.description}</td>
-                      <td className="px-4 py-4">
+                                            <td className="px-4 py-4">
                         {new Date(report.created_at).toLocaleString()}
                       </td>
                       <td className="px-4 py-4">{report.location}</td>
