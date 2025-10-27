@@ -1,3 +1,5 @@
+
+
 import React, { useEffect, useState } from "react";
 import supabase from "../../supabaseClient";
 import { toast } from "react-hot-toast";
@@ -87,6 +89,7 @@ export default function AdminReports() {
 
   const verifyMatches = async () => {
     toast.loading("Verifying matches...");
+
     try {
       const verified = [];
       const lostReports = reports.filter((r) => r.status === "Lost");
@@ -134,24 +137,25 @@ export default function AdminReports() {
                 });
 
               if (!insertError) {
-                toast.success(`Verified: ${lost.item_name}`);
                 verified.push({ lost_id: lost.id, found_id: found.id });
-              } else {
-                console.error("Insert failed:", insertError.message);
               }
             }
           }
         }
       }
 
-      if (verified.length === 0) {
-        toast("No matches found");
+      toast.dismiss();
+
+      
+      if (verified.length > 0) {
+        toast.success("Reports Verified Successfully!");
+      } else {
+        toast.error("No Verified Reports Found.");
       }
     } catch (err) {
       console.error("Error in verifyMatches:", err);
-      toast.error("Something went wrong");
-    } finally {
       toast.dismiss();
+      toast.error("Something went wrong while verifying reports.");
     }
   };
 
@@ -163,6 +167,7 @@ export default function AdminReports() {
         <main className="flex-1 ml-48 mt-5 lg:ml-64 p-4 space-y-6">
           <MobileInfoBoxes />
 
+          {/* Search and Verify Controls */}
           <div className="w-full flex justify-center">
             <div className="flex flex-wrap gap-2 justify-center items-center mb-4">
               <input
@@ -208,6 +213,7 @@ export default function AdminReports() {
             </div>
           </div>
 
+          {/* Reports Table */}
           <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-900">
             <table className="min-w-full text-sm text-left">
               <thead className="bg-blue-600 text-white sticky top-0 z-10">
@@ -222,13 +228,19 @@ export default function AdminReports() {
               <tbody className="text-white divide-y divide-gray-700">
                 {loading ? (
                   <tr>
-                    <td colSpan={headings.length} className="text-center py-6 text-gray-400">
+                    <td
+                      colSpan={headings.length}
+                      className="text-center py-6 text-gray-400"
+                    >
                       Loading reports...
                     </td>
                   </tr>
                 ) : filteredReports.length === 0 ? (
                   <tr>
-                    <td colSpan={headings.length} className="text-center py-6 text-gray-400">
+                    <td
+                      colSpan={headings.length}
+                      className="text-center py-6 text-gray-400"
+                    >
                       No reports found.
                     </td>
                   </tr>
@@ -239,7 +251,7 @@ export default function AdminReports() {
                       <td className="px-4 py-4">{report.item_name}</td>
                       <td className="px-4 py-4">{report.category}</td>
                       <td className="px-4 py-4">{report.description}</td>
-                                            <td className="px-4 py-4">
+                      <td className="px-4 py-4">
                         {new Date(report.created_at).toLocaleString()}
                       </td>
                       <td className="px-4 py-4">{report.location}</td>
