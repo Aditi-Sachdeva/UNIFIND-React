@@ -14,51 +14,66 @@ const Signup = () => {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const updatedForm = { ...form, [e.target.name]: e.target.value };
+    console.log('Form updated:', updatedForm);
+    setForm(updatedForm);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Form submitted with:', form);
 
     const { username, email, password, confirmPassword } = form;
 
     if (!username || !email || !password || !confirmPassword) {
+      console.warn('Validation failed: Missing fields');
       return toast.error('All fields are required');
     }
     if (password !== confirmPassword) {
+      console.warn('Validation failed: Passwords do not match');
       return toast.error('Passwords do not match');
     }
 
+    console.log('Calling Supabase auth.signUp...');
     const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
     });
+    console.log('Supabase signup response:', { data, signUpError });
 
     if (signUpError) {
-      if (signUpError.message.toLowerCase().includes('already registered')) {
+      const msg = signUpError.message.toLowerCase();
+      if (msg.includes('already registered')) {
+        console.warn('Signup error: Email already registered');
         return toast.error('This email is already registered. Please log in instead.');
       }
+      console.error('Signup error:', signUpError.message);
       return toast.error(signUpError.message);
     }
 
     const userId = data?.user?.id;
+    console.log('New user ID:', userId);
+
     if (userId) {
+      console.log('Inserting profile into Supabase...');
       const { error: profileError } = await supabase
         .from('profiles')
         .insert([{ id: userId, username }]);
 
+      console.log('Profile insert result:', { profileError });
+
       if (profileError) {
         const msg = profileError.message.toLowerCase();
-        if (
-          msg.includes('foreign key constraint') &&
-          msg.includes('profiles_id_fkey')
-        ) {
+        if (msg.includes('foreign key constraint') && msg.includes('profiles_id_fkey')) {
+          console.warn('Profile insert error: Foreign key constraint');
           return toast.error('This email is already registered. Please log in instead.');
         }
+        console.error('Profile insert error:', profileError.message);
         return toast.error(profileError.message);
       }
     }
 
+    console.log('Signup successful. Navigating to login...');
     toast.success('Signup successful! Please check your email to confirm.');
     setTimeout(() => navigate('/login'), 3000);
   };

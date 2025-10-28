@@ -9,34 +9,41 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const updatedForm = { ...form, [e.target.name]: e.target.value };
+    console.log('Form updated:', updatedForm);
+    setForm(updatedForm);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Form submitted with:', form);
 
     const { email, password } = form;
 
     if (!email || !password) {
+      console.warn('Validation failed: Missing email or password');
       return toast.error('Both fields are required');
     }
 
+    console.log('Calling Supabase auth.signInWithPassword...');
     const { data, error: loginError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+    console.log('Supabase login response:', { data, loginError });
 
     if (loginError) {
+      console.error('Login error:', loginError.message);
       return toast.error(loginError.message);
     }
 
+    console.log('Login successful. Navigating to home...');
     toast.success('Login successful!');
     navigate('/');
   };
 
   return (
     <div className="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-white flex flex-col min-h-screen transition-colors duration-300 md:min-h-[calc(100vh-64px)]">
-
       <div className="flex flex-grow justify-center items-center p-4 dark:bg-gray-900">
         <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-sm border border-gray-300 dark:border-blue-500 transition-colors duration-300">
           <h2 className="text-2xl font-bold text-center text-blue-600 dark:text-blue-400 mb-6">Login</h2>
