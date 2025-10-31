@@ -232,7 +232,8 @@ export default function AdminReports() {
           </div>
 
           {/* Table */}
-          <div className="hidden lg:block overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-900 mt-8">
+          <div className="hidden lg:block overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 mt-8">
+
             <table className="min-w-full text-sm text-left">
               <thead className="bg-blue-600 text-white sticky top-0 z-10">
                 <tr>
@@ -243,7 +244,8 @@ export default function AdminReports() {
                   ))}
                 </tr>
               </thead>
-              <tbody className="text-white divide-y divide-gray-700">
+             <tbody className="text-gray-900 dark:text-white divide-y divide-gray-300 dark:divide-gray-700">
+
                 {loading ? (
                   <tr>
                     <td
@@ -255,7 +257,8 @@ export default function AdminReports() {
                   </tr>
                 ) : filteredReports.length > 0 ? (
                   filteredReports.map((report) => (
-                    <tr key={report.id} className="hover:bg-gray-800 transition">
+                    <tr key={report.id} className="hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+
                       <td className="px-4 py-4">{report.profiles?.email || "—"}</td>
                       <td className="px-4 py-4">{report.item_name}</td>
                       <td className="px-4 py-4">{report.category}</td>
