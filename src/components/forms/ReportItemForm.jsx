@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import supabase from "../../supabaseClient";
+import { Link } from "react-router-dom";
+
 
 const getCurrentISTDateTime = () => {
   const now = new Date();
@@ -271,7 +273,31 @@ export default function ReportItemForm({ user }) {
           >
             {loading ? "Submitting..." : "Report Item"}
           </button>
+        {/* <p className="text-center text-sm mt-4 text-gray-700 dark:text-gray-300">
+          View your listings here{" "}
+          <Link
+            to="/listings" // ⬅️ Change this path to match your actual route
+            className="text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            ViewListings
+          </Link>
+          
+        </p> */}
+        
+
         </form>
+        <div className="mt-3 text-center">
+  <p className="text-base font-medium text-gray-800 dark:text-gray-200">
+    Want to check your reports?{" "}
+    <Link
+      to="/listings"
+      className="text-blue-600 dark:text-blue-400 hover:underline hover:text-blue-700 dark:hover:text-blue-300 transition"
+    >
+      View your listings
+    </Link>
+  </p>
+</div>
+
       </div>
     </div>
   );
