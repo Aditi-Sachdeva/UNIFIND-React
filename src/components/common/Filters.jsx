@@ -53,10 +53,13 @@ const Filters = ({ onFilter }) => {
         <option value="">All Status</option>
         <option>Lost</option>
         <option>Found</option>
-        <option>Claimed</option>
+       
       </select>
     </div>
   );
 };
 
 export default Filters;
+
+
+

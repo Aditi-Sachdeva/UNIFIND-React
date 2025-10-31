@@ -1,23 +1,28 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import supabase from "../../supabaseClient";
+import { Link } from "react-router-dom";
 
-const getCurrentISTDateTime = () => {
-  const now = new Date();
-  const istTime = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
 
+const getCurrentISTDateTime = () => { // Gives current date and time in IST
+  const now = new Date(); // gives current date and time
+  const istTime = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);//coversion to milliseconds and IST
+  
+
+  //Gives exact year,month,day,hour and second
   const year = istTime.getUTCFullYear();
-  const month = String(istTime.getUTCMonth() + 1).padStart(2, "0");
+  const month = String(istTime.getUTCMonth() + 1).padStart(2, "0");//padstart=convert single digit number to double
   const day = String(istTime.getUTCDate()).padStart(2, "0");
   const hours = String(istTime.getUTCHours()).padStart(2, "0");
   const minutes = String(istTime.getUTCMinutes()).padStart(2, "0");
   const seconds = String(istTime.getUTCSeconds()).padStart(2, "0");
 
-  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;// combine everything
 };
 
+//Form data object hai jo gets updated whenever new values are added
 export default function ReportItemForm({ user }) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({ // usestate=variable that remember data, formData = stores data, setFormData = update data
     itemName: "",
     category: "Electronics",
     description: "",
@@ -28,8 +33,10 @@ export default function ReportItemForm({ user }) {
     image: null,
   });
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);//track whether form is currently submitting or not
+  
 
+  //list of arrays of location which is shown in dropdown
   const locationOptions = [
     "Alpha Zone", "Central Library", "Girls Hostel", "Boys Hostel", "SQ1", "SQ2",
     "Exploratorium", "Sportorium", "Turing Block", "Martin Luther Block",
@@ -271,8 +278,34 @@ export default function ReportItemForm({ user }) {
           >
             {loading ? "Submitting..." : "Report Item"}
           </button>
+        {/* <p className="text-center text-sm mt-4 text-gray-700 dark:text-gray-300">
+          View your listings here{" "}
+          <Link
+            to="/listings" // ⬅️ Change this path to match your actual route
+            className="text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            ViewListings
+          </Link>
+          
+        </p> */}
+        
+
         </form>
+        <div className="mt-3 text-center">
+  <p className="text-base font-medium text-gray-800 dark:text-gray-200">
+    Want to check your reports?{" "}
+    <Link
+      to="/listings"
+      className="text-blue-600 dark:text-blue-400 hover:underline hover:text-blue-700 dark:hover:text-blue-300 transition"
+    >
+      View your listings
+    </Link>
+  </p>
+</div>
+
       </div>
     </div>
   );
 }
+
+
