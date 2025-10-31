@@ -27,7 +27,6 @@ export default function EditReport({ user }) {
     "Rockfeller Block", "Main Gate",
   ];
 
-  // Fetch existing report data
   useEffect(() => {
     const fetchReport = async () => {
       const { data, error } = await supabase
@@ -107,23 +106,23 @@ export default function EditReport({ user }) {
 
   if (loading)
     return (
-      <div className="flex items-center justify-center h-screen text-white">
+      <div className="flex items-center justify-center h-screen text-gray-800 dark:text-white">
         Loading...
       </div>
     );
 
   return (
-    <div className="pt-5 px-4 pb-8 flex justify-center items-start md:h-[calc(100vh-64px)] md:overflow-hidden bg-[#0B1221]">
+    <div className="pt-5 px-4 pb-8 flex justify-center items-start md:h-[calc(100vh-64px)] md:overflow-hidden bg-gray-100 dark:bg-gray-900">
       <div className="w-full max-w-md bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
         <h2 className="text-xl font-bold text-center text-blue-600 dark:text-blue-400 mb-4">
           Edit Report
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Row 1: Item Name + Category */}
+          {/* Item Name & Category */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-300 mb-1">
+              <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
                 Item Name
               </label>
               <input
@@ -131,19 +130,19 @@ export default function EditReport({ user }) {
                 name="item_name"
                 value={formData.item_name}
                 onChange={handleChange}
-                className="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700 text-black dark:text-white focus:ring-2 focus:ring-blue-400 focus:outline-none"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-300 mb-1">
+              <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
                 Category
               </label>
               <select
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700 text-black dark:text-white focus:ring-2 focus:ring-blue-400 focus:outline-none"
               >
                 <option>Electronics</option>
                 <option>Accessories</option>
@@ -165,23 +164,22 @@ export default function EditReport({ user }) {
 
           {/* Description */}
           <div>
-            <label className="block text-sm text-gray-300 mb-1">
+            <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
               Description
             </label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Describe the item..."
               rows="3"
-              className="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700 text-black dark:text-white focus:ring-2 focus:ring-blue-400 focus:outline-none"
             />
           </div>
 
           {/* Date & Location */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-300 mb-1">
+              <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
                 Date & Time
               </label>
               <input
@@ -189,19 +187,19 @@ export default function EditReport({ user }) {
                 name="date_time"
                 value={formData.date_time?.slice(0, 16) || ""}
                 onChange={handleChange}
-                className="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700 text-black dark:text-white focus:ring-2 focus:ring-blue-400 focus:outline-none"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-300 mb-1">
+              <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
                 Location
               </label>
               <select
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
-                className="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700 text-black dark:text-white focus:ring-2 focus:ring-blue-400 focus:outline-none"
                 required
               >
                 <option value="">Select Location</option>
@@ -214,22 +212,24 @@ export default function EditReport({ user }) {
             </div>
           </div>
 
-          {/* Status + Contact Info */}
+          {/* Status + Contact */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-300 mb-1">Status</label>
+              <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
+                Status
+              </label>
               <select
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
-                className="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700 text-black dark:text-white focus:ring-2 focus:ring-blue-400 focus:outline-none"
               >
                 <option>Lost</option>
                 <option>Found</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm text-gray-300 mb-1">
+              <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
                 Contact Info
               </label>
               <input
@@ -237,25 +237,25 @@ export default function EditReport({ user }) {
                 name="contact_info"
                 value={formData.contact_info}
                 onChange={handleChange}
-                className="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700 text-black dark:text-white focus:ring-2 focus:ring-blue-400 focus:outline-none"
               />
             </div>
           </div>
 
-          {/* Image Upload */}
+          {/* Upload */}
           <div>
-            <label className="block text-sm text-gray-300 mb-1">
+            <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
               Upload Image
             </label>
             <input
               type="file"
               onChange={handleFileChange}
               accept="image/*"
-              className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 file:bg-gray-600 file:text-white file:px-2 file:py-1 file:rounded hover:file:bg-gray-500"
+              className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700 text-black dark:text-white border border-gray-400 dark:border-gray-600 file:cursor-pointer file:bg-gray-300 dark:file:bg-gray-700 file:text-black dark:file:text-white file:px-2 file:py-1 file:rounded file:hover:bg-gray-400 dark:file:hover:bg-gray-600"
             />
           </div>
 
-          {/* Submit */}
+          {/* Button */}
           <button
             type="submit"
             disabled={loading}
@@ -270,11 +270,11 @@ export default function EditReport({ user }) {
         </form>
 
         <div className="mt-3 text-center">
-          <p className="text-base font-medium text-gray-300">
+          <p className="text-base font-medium text-gray-800 dark:text-gray-200">
             View updated reports?{" "}
             <Link
               to="/listings"
-              className="text-blue-500 hover:underline hover:text-blue-400 transition"
+              className="text-blue-600 dark:text-blue-400 hover:underline hover:text-blue-700 dark:hover:text-blue-300 transition"
             >
               View your listings
             </Link>
