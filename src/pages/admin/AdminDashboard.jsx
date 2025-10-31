@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import supabase from '../../supabaseClient';
 import AdminNavbar from '../../components/admin/AdminNavbar';
 import AdminSidebar from '../../components/admin/AdminSidebar';
-import MobileInfoBoxes from '../../components/admin/MobileInfoBoxes';
 import StatsCard from '../../components/admin/StatsCard';
 import VerifiedReportsTable from '../../components/admin/VerifiedReportsTable';
 
@@ -83,7 +82,6 @@ export default function AdminDashboard() {
       <div className="flex">
         <AdminSidebar />
         <main className="flex-1 ml-48 lg:ml-64 h-[calc(100vh-64px)] overflow-y-auto p-4 space-y-6">
-          <MobileInfoBoxes />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <StatsCard label="Total Reports" value={totalReports} color="blue" />

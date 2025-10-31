@@ -3,7 +3,6 @@ import supabase from '../../supabaseClient';
 import { toast } from 'react-hot-toast';
 import AdminNavbar from '../../components/admin/AdminNavbar';
 import AdminSidebar from '../../components/admin/AdminSidebar';
-import MobileInfoBoxes from '../../components/admin/MobileInfoBoxes';
 
 export default function ManageUsers() {
   const [users, setUsers] = useState([]);
@@ -88,7 +87,6 @@ export default function ManageUsers() {
       <div className="flex">
         <AdminSidebar />
         <main className="flex-1 ml-48 mt-5 lg:ml-64 p-4 space-y-6">
-          <MobileInfoBoxes />
 
           {/* Filters */}
           <div className="w-full flex justify-center">

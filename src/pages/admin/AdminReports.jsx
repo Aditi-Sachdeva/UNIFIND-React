@@ -1,11 +1,8 @@
-
-
 import React, { useEffect, useState } from "react";
 import supabase from "../../supabaseClient";
 import { toast } from "react-hot-toast";
 import AdminNavbar from "../../components/admin/AdminNavbar";
 import AdminSidebar from "../../components/admin/AdminSidebar";
-import MobileInfoBoxes from "../../components/admin/MobileInfoBoxes";
 import { getImageEmbedding, cosineSimilarity } from "./../../utils/clarifai";
 
 export default function AdminReports() {
@@ -88,434 +85,154 @@ export default function AdminReports() {
     return common.length >= 2;
   };
 
-  // const verifyMatches = async () => {
-  //   toast.loading("Verifying matches...");
+  const verifyMatches = async () => {
+    toast.loading("Verifying matches...");
 
-  //   try {
-  //     const verified = [];
-  //     const lostReports = reports.filter((r) => r.status === "Lost");
-  //     const foundReports = reports.filter((r) => r.status === "Found");
+    try {
+      const verified = [];
+      const lostReports = reports.filter((r) => r.status === "Lost");
+      const foundReports = reports.filter((r) => r.status === "Found");
 
-  //     for (const lost of lostReports) {
-  //       for (const found of foundReports) {
-  //         let matchScore = 0;
+      for (const lost of lostReports) {
+        for (const found of foundReports) {
+          let matchScore = 0;
 
-  //         if (fuzzyMatch(lost.item_name, found.item_name)) matchScore++;
-  //         if (fuzzyMatch(lost.category, found.category)) matchScore++;
-  //         if (keywordMatch(lost.description, found.description)) matchScore++;
-  //         if (fuzzyMatch(lost.location, found.location)) matchScore++;
-  //         if (
-  //           lost.image_url &&
-  //           found.image_url &&
-  //           normalize(lost.image_url) === normalize(found.image_url)
-  //         )
-  //           matchScore++;
+          if (fuzzyMatch(lost.item_name, found.item_name)) matchScore++;
+          if (fuzzyMatch(lost.category, found.category)) matchScore++;
+          if (keywordMatch(lost.description, found.description)) matchScore++;
+          if (fuzzyMatch(lost.location, found.location)) matchScore++;
 
-  //         if (matchScore >= 3) {
-  //           const { data: existing, error: checkError } = await supabase
-  //             .from("verified_reports")
-  //             .select("id")
-  //             .eq("lost_id", lost.id)
-  //             .eq("found_id", found.id)
-  //             .maybeSingle();
+          const hasImages = lost.image_url && found.image_url;
+          let imageMatched = false;
 
-  //           if (checkError && checkError.code !== "PGRST116") {
-  //             console.error("Error checking existing match:", checkError.message);
-  //             continue;
-  //           }
+          if (hasImages && matchScore > 3) {
+            const [lostEmbedding, foundEmbedding] = await Promise.all([
+              getImageEmbedding(lost.image_url),
+              getImageEmbedding(found.image_url),
+            ]);
 
-  //           if (!existing) {
-  //             const { error: insertError } = await supabase
-  //               .from("verified_reports")
-  //               .insert({
-  //                 lost_id: lost.id,
-  //                 found_id: found.id,
-  //                 verified_at: new Date().toISOString(),
-  //                 match_score: matchScore,
-  //                 lost_email: lost.profiles?.email || null,
-  //                 found_email: found.profiles?.email || null,
-  //                 status: "Pending",
-  //               });
-
-  //             if (!insertError) {
-  //               verified.push({ lost_id: lost.id, found_id: found.id });
-  //             }
-  //           }
-  //         }
-  //       }
-  //     }
-
-  //     toast.dismiss();
-
-      
-  //     if (verified.length > 0) {
-  //       toast.success("Reports Verified Successfully!");
-  //     } else {
-  //       toast.error("No Verified Reports Found.");
-  //     }
-  //   } catch (err) {
-  //     console.error("Error in verifyMatches:", err);
-  //     toast.dismiss();
-  //     toast.error("Something went wrong while verifying reports.");
-  //   }
-  // };
-
-
-  
-
-
-// const verifyMatches = async () => {
-//   console.log("🔍 verifyMatches triggered");
-//   toast.loading("Verifying matches...");
-
-//   try {
-//     const verified = [];
-
-//     console.log("📦 Total reports:", reports.length);
-//     const lostReports = reports.filter((r) => r.status === "Lost");
-//     const foundReports = reports.filter((r) => r.status === "Found");
-
-//     console.log(`🧭 Lost reports: ${lostReports.length}, Found reports: ${foundReports.length}`);
-
-//     for (const lost of lostReports) {
-//       for (const found of foundReports) {
-//         let matchScore = 0;
-//         console.log(`🔗 Comparing Lost #${lost.id} with Found #${found.id}`);
-
-//         if (fuzzyMatch(lost.item_name, found.item_name)) {
-//           matchScore++;
-//           console.log("✅ Item name matched");
-//         }
-
-//         if (fuzzyMatch(lost.category, found.category)) {
-//           matchScore++;
-//           console.log("✅ Category matched");
-//         }
-
-//         if (keywordMatch(lost.description, found.description)) {
-//           matchScore++;
-//           console.log("✅ Description keywords matched");
-//         }
-
-//         if (fuzzyMatch(lost.location, found.location)) {
-//           matchScore++;
-//           console.log("✅ Location matched");
-//         }
-
-//         // 🧠 Clarifai image similarity — no URL comparison
-//         if (lost.image_url && found.image_url) {
-//           console.log("🖼️ Checking image similarity via Clarifai...");
-//           const [lostEmbedding, foundEmbedding] = await Promise.all([
-//             getImageEmbedding(lost.image_url),
-//             getImageEmbedding(found.image_url),
-//           ]);
-
-//           if (lostEmbedding && foundEmbedding) {
-//             const similarity = cosineSimilarity(lostEmbedding, foundEmbedding);
-//             console.log(`📊 Image similarity score: ${similarity.toFixed(4)}`);
-
-//             if (similarity >= 0.85) {
-//               matchScore++;
-//               console.log("✅ Image similarity passed threshold");
-//             } else {
-//               console.log("⚠️ Image similarity below threshold");
-//             }
-//           } else {
-//             console.warn("⚠️ Missing embeddings for one or both images");
-//           }
-//         }
-
-//         console.log(`🧮 Final match score: ${matchScore}`);
-
-//         if (matchScore >= 3) {
-//           const { data: existing, error: checkError } = await supabase
-//             .from("verified_reports")
-//             .select("id")
-//             .eq("lost_id", lost.id)
-//             .eq("found_id", found.id)
-//             .maybeSingle();
-
-//           if (checkError && checkError.code !== "PGRST116") {
-//             console.error("❌ Error checking existing match:", checkError.message);
-//             continue;
-//           }
-
-//           if (!existing) {
-//             console.log("📥 Inserting new verified match...");
-//             const { error: insertError } = await supabase
-//               .from("verified_reports")
-//               .insert({
-//                 lost_id: lost.id,
-//                 found_id: found.id,
-//                 verified_at: new Date().toISOString(),
-//                 match_score: matchScore,
-//                 lost_email: lost.profiles?.email || null,
-//                 found_email: found.profiles?.email || null,
-//                 status: "Pending",
-//               });
-
-//             if (!insertError) {
-//               console.log("✅ Match inserted successfully");
-//               verified.push({ lost_id: lost.id, found_id: found.id });
-//             } else {
-//               console.error("❌ Insert error:", insertError.message);
-//             }
-//           } else {
-//             console.log("⏩ Match already exists, skipping insert");
-//           }
-//         } else {
-//           console.log("❌ Match score too low, skipping");
-//         }
-//       }
-//     }
-
-//     toast.dismiss();
-
-//     if (verified.length > 0) {
-//       console.log("🎉 Verified matches:", verified);
-//       toast.success("Reports Verified Successfully!");
-//     } else {
-//       console.log("🚫 No matches verified");
-//       toast.error("No Verified Reports Found.");
-//     }
-//   } catch (err) {
-//     console.error("🔥 Error in verifyMatches:", err);
-//     toast.dismiss();
-//     toast.error("Something went wrong while verifying reports.");
-//   }
-// };
-
-
-
-// const verifyMatches = async () => {
-//     toast.loading("Verifying matches...");
-
-//     try {
-//       const verified = [];
-//       const lostReports = reports.filter((r) => r.status === "Lost");
-//       const foundReports = reports.filter((r) => r.status === "Found");
-
-//       for (const lost of lostReports) {
-//         for (const found of foundReports) {
-//           let matchScore = 0;
-
-//           if (fuzzyMatch(lost.item_name, found.item_name)) matchScore++;
-//           if (fuzzyMatch(lost.category, found.category)) matchScore++;
-//           if (keywordMatch(lost.description, found.description)) matchScore++;
-//           if (fuzzyMatch(lost.location, found.location)) matchScore++;
-//           if (lost.image_url && found.image_url) {
-//   const [lostEmbedding, foundEmbedding] = await Promise.all([
-//     getImageEmbedding(lost.image_url),
-//     getImageEmbedding(found.image_url),
-//   ]);
-
-//   if (lostEmbedding && foundEmbedding) {
-//     const similarity = cosineSimilarity(lostEmbedding, foundEmbedding);
-//     if (similarity >= 0.85) {
-//       matchScore++;
-//     }
-//   }
-// }
-
-
-//           if (matchScore >= 3) {
-//             const { data: existing, error: checkError } = await supabase
-//               .from("verified_reports")
-//               .select("id")
-//               .eq("lost_id", lost.id)
-//               .eq("found_id", found.id)
-//               .maybeSingle();
-
-//             if (checkError && checkError.code !== "PGRST116") {
-//               console.error("Error checking existing match:", checkError.message);
-//               continue;
-//             }
-
-//             if (!existing) {
-//               const { error: insertError } = await supabase
-//                 .from("verified_reports")
-//                 .insert({
-//                   lost_id: lost.id,
-//                   found_id: found.id,
-//                   verified_at: new Date().toISOString(),
-//                   match_score: matchScore,
-//                   lost_email: lost.profiles?.email || null,
-//                   found_email: found.profiles?.email || null,
-//                   status: "Pending",
-//                 });
-
-//               if (!insertError) {
-//                 verified.push({ lost_id: lost.id, found_id: found.id });
-//               }
-//             }
-//           }
-//         }
-//       }
-
-//       toast.dismiss();
-
-      
-//       if (verified.length > 0) {
-//         toast.success("Reports Verified Successfully!");
-//       } else {
-//         toast.error("No Verified Reports Found.");
-//       }
-//     } catch (err) {
-//       console.error("Error in verifyMatches:", err);
-//       toast.dismiss();
-//       toast.error("Something went wrong while verifying reports.");
-//     }
-//   };
-
-
-
-const verifyMatches = async () => {
-  toast.loading("Verifying matches...");
-
-  try {
-    const verified = [];
-    const lostReports = reports.filter((r) => r.status === "Lost");
-    const foundReports = reports.filter((r) => r.status === "Found");
-
-    for (const lost of lostReports) {
-      for (const found of foundReports) {
-        let matchScore = 0;
-
-        // Step 1: Metadata matching
-        if (fuzzyMatch(lost.item_name, found.item_name)) matchScore++;
-        if (fuzzyMatch(lost.category, found.category)) matchScore++;
-        if (keywordMatch(lost.description, found.description)) matchScore++;
-        if (fuzzyMatch(lost.location, found.location)) matchScore++;
-
-        const hasImages = lost.image_url && found.image_url;
-        let imageMatched = false;
-
-        // Step 2: If both images exist and metadata score ≥ 3, check image similarity
-        if (hasImages && matchScore > 3) {
-          const [lostEmbedding, foundEmbedding] = await Promise.all([
-            getImageEmbedding(lost.image_url),
-            getImageEmbedding(found.image_url),
-          ]);
-
-          if (lostEmbedding && foundEmbedding) {
-            const similarity = cosineSimilarity(lostEmbedding, foundEmbedding);
-            if (similarity >= 0.85) {
-              matchScore++;
-              imageMatched = true;
+            if (lostEmbedding && foundEmbedding) {
+              const similarity = cosineSimilarity(lostEmbedding, foundEmbedding);
+              if (similarity >= 0.85) {
+                matchScore++;
+                imageMatched = true;
+              }
             }
           }
-        }
 
-        // Step 3: Decide whether to insert
-        const shouldInsert =
-          (!hasImages && matchScore > 4) || (hasImages && imageMatched && matchScore >= 4);
+          const shouldInsert =
+            (!hasImages && matchScore > 4) ||
+            (hasImages && imageMatched && matchScore >= 4);
 
-        if (shouldInsert) {
-          const { data: existing, error: checkError } = await supabase
-            .from("verified_reports")
-            .select("id")
-            .eq("lost_id", lost.id)
-            .eq("found_id", found.id)
-            .maybeSingle();
-
-          if (checkError && checkError.code !== "PGRST116") {
-            console.error("Error checking existing match:", checkError.message);
-            continue;
-          }
-
-          if (!existing || Object.keys(existing).length === 0) {
-            const { error: insertError } = await supabase
+          if (shouldInsert) {
+            const { data: existing, error: checkError } = await supabase
               .from("verified_reports")
-              .insert({
-                lost_id: lost.id,
-                found_id: found.id,
-                verified_at: new Date().toISOString(),
-                match_score: matchScore,
-                lost_email: lost.profiles?.email || null,
-                found_email: found.profiles?.email || null,
-                status: "Pending",
-              });
+              .select("id")
+              .eq("lost_id", lost.id)
+              .eq("found_id", found.id)
+              .maybeSingle();
 
-            if (!insertError) {
-              verified.push({ lost_id: lost.id, found_id: found.id });
+            if (checkError && checkError.code !== "PGRST116") {
+              console.error("Error checking existing match:", checkError.message);
+              continue;
+            }
+
+            if (!existing || Object.keys(existing).length === 0) {
+              const { error: insertError } = await supabase
+                .from("verified_reports")
+                .insert({
+                  lost_id: lost.id,
+                  found_id: found.id,
+                  verified_at: new Date().toISOString(),
+                  match_score: matchScore,
+                  lost_email: lost.profiles?.email || null,
+                  found_email: found.profiles?.email || null,
+                  status: "Pending",
+                });
+
+              if (!insertError) {
+                verified.push({ lost_id: lost.id, found_id: found.id });
+              }
             }
           }
         }
       }
+
+      toast.dismiss();
+
+      if (verified.length > 0) {
+        toast.success("Reports Verified Successfully!");
+      } else {
+        toast.error("No Verified Reports Found.");
+      }
+    } catch (err) {
+      console.error("Error in verifyMatches:", err);
+      toast.dismiss();
+      toast.error("Something went wrong while verifying reports.");
     }
-
-    toast.dismiss();
-
-    if (verified.length > 0) {
-      toast.success("Reports Verified Successfully!");
-    } else {
-      toast.error("No Verified Reports Found.");
-    }
-  } catch (err) {
-    console.error("Error in verifyMatches:", err);
-    toast.dismiss();
-    toast.error("Something went wrong while verifying reports.");
-  }
-};
-
-
+  };
 
   return (
     <div className="bg-white dark:bg-gray-900 min-h-screen">
       <AdminNavbar />
-      <div className="flex">
-        <AdminSidebar />
-        <main className="flex-1 ml-48 mt-5 lg:ml-64 p-4 space-y-6">
-          <MobileInfoBoxes />
+      <div className="flex flex-col lg:flex-row">
+        {/* Sidebar */}
+        <div className="hidden lg:block">
+          <AdminSidebar />
+        </div>
 
-          {/* Search and Verify Controls */}
-          <div className="w-full flex justify-center">
-            <div className="flex flex-wrap gap-2 justify-center items-center mb-4">
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search listings..."
-                className="px-3 py-2 bg-white dark:bg-gray-800 dark:text-white rounded-md border border-gray-300 dark:border-gray-700 w-full sm:w-72 outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-3 py-2 bg-white dark:bg-gray-800 dark:text-white rounded-md border border-gray-300 dark:border-gray-700"
-              >
-                <option value="">All Categories</option>
-                <option>Electronics</option>
-                <option>Accessories</option>
-                <option>Books</option>
-                <option>Clothing</option>
-                <option>Footwear</option>
-                <option>Bags & Wallets</option>
-                <option>Stationery</option>
-                <option>ID & Access Cards</option>
-                <option>Documents</option>
-                <option>Keys</option>
-                <option>Eyewear</option>
-                <option>Sports & Gym Gear</option>
-                <option>Water Bottles & Drinkware</option>
-                <option>Others</option>
-              </select>
-              <button
-                onClick={handleSearch}
-                className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-white transition"
-              >
-                Search
-              </button>
-              <button
-                onClick={verifyMatches}
-                className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md text-white transition"
-              >
-                Verify Items
-              </button>
-            </div>
+        {/* Main Content */}
+        <main className="flex-1 mt-5 p-4 lg:ml-64 space-y-6">
+          {/* Search Bar */}
+          <div className="w-full flex justify-center mb-3">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search listings..."
+              className="px-3 py-2 bg-white dark:bg-gray-800 dark:text-white rounded-md border border-gray-300 dark:border-gray-700 w-[85%] sm:w-[500px] outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
 
-          {/* Reports Table */}
-          <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-900">
+          {/* Category + Buttons */}
+          <div className="w-full flex flex-row flex-wrap gap-2 justify-center items-center mb-4 overflow-x-auto">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="px-3 py-2 bg-white dark:bg-gray-800 dark:text-white rounded-md border border-gray-300 dark:border-gray-700 w-36 sm:w-40 flex-shrink-0"
+            >
+              <option value="">All Categories</option>
+              <option>Electronics</option>
+              <option>Accessories</option>
+              <option>Books</option>
+              <option>Clothing</option>
+              <option>Footwear</option>
+              <option>Bags & Wallets</option>
+              <option>Stationery</option>
+              <option>ID & Access Cards</option>
+              <option>Documents</option>
+              <option>Keys</option>
+              <option>Eyewear</option>
+              <option>Sports & Gym Gear</option>
+              <option>Water Bottles & Drinkware</option>
+              <option>Others</option>
+            </select>
+            <button
+              onClick={handleSearch}
+              className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-white transition flex-shrink-0"
+            >
+              Search
+            </button>
+            <button
+              onClick={verifyMatches}
+              className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md text-white transition flex-shrink-0 mr-2"
+            >
+              Verify Items
+            </button>
+          </div>
+
+          {/* Table */}
+          <div className="hidden lg:block overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-900 mt-8">
             <table className="min-w-full text-sm text-left">
               <thead className="bg-blue-600 text-white sticky top-0 z-10">
                 <tr>
@@ -583,8 +300,51 @@ const verifyMatches = async () => {
               </tbody>
             </table>
           </div>
+
+          {/* Mobile Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:hidden">
+            {filteredReports.map((report) => (
+              <div
+                key={report.id}
+                className="p-4 bg-gray-800 rounded-lg shadow-md text-white space-y-2"
+              >
+                <p>
+                  <span className="font-semibold">Item:</span> {report.item_name}
+                </p>
+                <p>
+                  <span className="font-semibold">Category:</span>{" "}
+                  {report.category}
+                </p>
+                <p>
+                  <span className="font-semibold">Status:</span> {report.status}
+                </p>
+                <p>
+                  <span className="font-semibold">Location:</span>{" "}
+                  {report.location}
+                </p>
+                <p>
+                  <span className="font-semibold">Contact:</span>{" "}
+                  {report.contact_info}
+                </p>
+                {report.image_url && (
+                  <img
+                    src={report.image_url}
+                    alt="Report"
+                    className="w-full h-40 object-cover rounded-md"
+                  />
+                )}
+                <button
+                  onClick={() => handleDelete(report.id)}
+                  className="bg-red-600 hover:bg-red-700 px-3 py-2 mt-2 rounded-md text-white w-full"
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
+          </div>
         </main>
       </div>
     </div>
   );
 }
+  
