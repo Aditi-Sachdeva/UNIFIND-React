@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import AdminNavbar from "../../components/admin/AdminNavbar";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import MobileInfoBoxes from "../../components/admin/MobileInfoBoxes";
+import { getImageEmbedding, cosineSimilarity } from "./../../utils/clarifai";
 
 export default function AdminReports() {
   const [reports, setReports] = useState([]);
@@ -87,77 +88,377 @@ export default function AdminReports() {
     return common.length >= 2;
   };
 
-  const verifyMatches = async () => {
-    toast.loading("Verifying matches...");
+  // const verifyMatches = async () => {
+  //   toast.loading("Verifying matches...");
 
-    try {
-      const verified = [];
-      const lostReports = reports.filter((r) => r.status === "Lost");
-      const foundReports = reports.filter((r) => r.status === "Found");
+  //   try {
+  //     const verified = [];
+  //     const lostReports = reports.filter((r) => r.status === "Lost");
+  //     const foundReports = reports.filter((r) => r.status === "Found");
 
-      for (const lost of lostReports) {
-        for (const found of foundReports) {
-          let matchScore = 0;
+  //     for (const lost of lostReports) {
+  //       for (const found of foundReports) {
+  //         let matchScore = 0;
 
-          if (fuzzyMatch(lost.item_name, found.item_name)) matchScore++;
-          if (fuzzyMatch(lost.category, found.category)) matchScore++;
-          if (keywordMatch(lost.description, found.description)) matchScore++;
-          if (fuzzyMatch(lost.location, found.location)) matchScore++;
-          if (
-            lost.image_url &&
-            found.image_url &&
-            normalize(lost.image_url) === normalize(found.image_url)
-          )
-            matchScore++;
+  //         if (fuzzyMatch(lost.item_name, found.item_name)) matchScore++;
+  //         if (fuzzyMatch(lost.category, found.category)) matchScore++;
+  //         if (keywordMatch(lost.description, found.description)) matchScore++;
+  //         if (fuzzyMatch(lost.location, found.location)) matchScore++;
+  //         if (
+  //           lost.image_url &&
+  //           found.image_url &&
+  //           normalize(lost.image_url) === normalize(found.image_url)
+  //         )
+  //           matchScore++;
 
-          if (matchScore >= 3) {
-            const { data: existing, error: checkError } = await supabase
-              .from("verified_reports")
-              .select("id")
-              .eq("lost_id", lost.id)
-              .eq("found_id", found.id)
-              .maybeSingle();
+  //         if (matchScore >= 3) {
+  //           const { data: existing, error: checkError } = await supabase
+  //             .from("verified_reports")
+  //             .select("id")
+  //             .eq("lost_id", lost.id)
+  //             .eq("found_id", found.id)
+  //             .maybeSingle();
 
-            if (checkError && checkError.code !== "PGRST116") {
-              console.error("Error checking existing match:", checkError.message);
-              continue;
+  //           if (checkError && checkError.code !== "PGRST116") {
+  //             console.error("Error checking existing match:", checkError.message);
+  //             continue;
+  //           }
+
+  //           if (!existing) {
+  //             const { error: insertError } = await supabase
+  //               .from("verified_reports")
+  //               .insert({
+  //                 lost_id: lost.id,
+  //                 found_id: found.id,
+  //                 verified_at: new Date().toISOString(),
+  //                 match_score: matchScore,
+  //                 lost_email: lost.profiles?.email || null,
+  //                 found_email: found.profiles?.email || null,
+  //                 status: "Pending",
+  //               });
+
+  //             if (!insertError) {
+  //               verified.push({ lost_id: lost.id, found_id: found.id });
+  //             }
+  //           }
+  //         }
+  //       }
+  //     }
+
+  //     toast.dismiss();
+
+      
+  //     if (verified.length > 0) {
+  //       toast.success("Reports Verified Successfully!");
+  //     } else {
+  //       toast.error("No Verified Reports Found.");
+  //     }
+  //   } catch (err) {
+  //     console.error("Error in verifyMatches:", err);
+  //     toast.dismiss();
+  //     toast.error("Something went wrong while verifying reports.");
+  //   }
+  // };
+
+
+  
+
+
+// const verifyMatches = async () => {
+//   console.log("🔍 verifyMatches triggered");
+//   toast.loading("Verifying matches...");
+
+//   try {
+//     const verified = [];
+
+//     console.log("📦 Total reports:", reports.length);
+//     const lostReports = reports.filter((r) => r.status === "Lost");
+//     const foundReports = reports.filter((r) => r.status === "Found");
+
+//     console.log(`🧭 Lost reports: ${lostReports.length}, Found reports: ${foundReports.length}`);
+
+//     for (const lost of lostReports) {
+//       for (const found of foundReports) {
+//         let matchScore = 0;
+//         console.log(`🔗 Comparing Lost #${lost.id} with Found #${found.id}`);
+
+//         if (fuzzyMatch(lost.item_name, found.item_name)) {
+//           matchScore++;
+//           console.log("✅ Item name matched");
+//         }
+
+//         if (fuzzyMatch(lost.category, found.category)) {
+//           matchScore++;
+//           console.log("✅ Category matched");
+//         }
+
+//         if (keywordMatch(lost.description, found.description)) {
+//           matchScore++;
+//           console.log("✅ Description keywords matched");
+//         }
+
+//         if (fuzzyMatch(lost.location, found.location)) {
+//           matchScore++;
+//           console.log("✅ Location matched");
+//         }
+
+//         // 🧠 Clarifai image similarity — no URL comparison
+//         if (lost.image_url && found.image_url) {
+//           console.log("🖼️ Checking image similarity via Clarifai...");
+//           const [lostEmbedding, foundEmbedding] = await Promise.all([
+//             getImageEmbedding(lost.image_url),
+//             getImageEmbedding(found.image_url),
+//           ]);
+
+//           if (lostEmbedding && foundEmbedding) {
+//             const similarity = cosineSimilarity(lostEmbedding, foundEmbedding);
+//             console.log(`📊 Image similarity score: ${similarity.toFixed(4)}`);
+
+//             if (similarity >= 0.85) {
+//               matchScore++;
+//               console.log("✅ Image similarity passed threshold");
+//             } else {
+//               console.log("⚠️ Image similarity below threshold");
+//             }
+//           } else {
+//             console.warn("⚠️ Missing embeddings for one or both images");
+//           }
+//         }
+
+//         console.log(`🧮 Final match score: ${matchScore}`);
+
+//         if (matchScore >= 3) {
+//           const { data: existing, error: checkError } = await supabase
+//             .from("verified_reports")
+//             .select("id")
+//             .eq("lost_id", lost.id)
+//             .eq("found_id", found.id)
+//             .maybeSingle();
+
+//           if (checkError && checkError.code !== "PGRST116") {
+//             console.error("❌ Error checking existing match:", checkError.message);
+//             continue;
+//           }
+
+//           if (!existing) {
+//             console.log("📥 Inserting new verified match...");
+//             const { error: insertError } = await supabase
+//               .from("verified_reports")
+//               .insert({
+//                 lost_id: lost.id,
+//                 found_id: found.id,
+//                 verified_at: new Date().toISOString(),
+//                 match_score: matchScore,
+//                 lost_email: lost.profiles?.email || null,
+//                 found_email: found.profiles?.email || null,
+//                 status: "Pending",
+//               });
+
+//             if (!insertError) {
+//               console.log("✅ Match inserted successfully");
+//               verified.push({ lost_id: lost.id, found_id: found.id });
+//             } else {
+//               console.error("❌ Insert error:", insertError.message);
+//             }
+//           } else {
+//             console.log("⏩ Match already exists, skipping insert");
+//           }
+//         } else {
+//           console.log("❌ Match score too low, skipping");
+//         }
+//       }
+//     }
+
+//     toast.dismiss();
+
+//     if (verified.length > 0) {
+//       console.log("🎉 Verified matches:", verified);
+//       toast.success("Reports Verified Successfully!");
+//     } else {
+//       console.log("🚫 No matches verified");
+//       toast.error("No Verified Reports Found.");
+//     }
+//   } catch (err) {
+//     console.error("🔥 Error in verifyMatches:", err);
+//     toast.dismiss();
+//     toast.error("Something went wrong while verifying reports.");
+//   }
+// };
+
+
+
+// const verifyMatches = async () => {
+//     toast.loading("Verifying matches...");
+
+//     try {
+//       const verified = [];
+//       const lostReports = reports.filter((r) => r.status === "Lost");
+//       const foundReports = reports.filter((r) => r.status === "Found");
+
+//       for (const lost of lostReports) {
+//         for (const found of foundReports) {
+//           let matchScore = 0;
+
+//           if (fuzzyMatch(lost.item_name, found.item_name)) matchScore++;
+//           if (fuzzyMatch(lost.category, found.category)) matchScore++;
+//           if (keywordMatch(lost.description, found.description)) matchScore++;
+//           if (fuzzyMatch(lost.location, found.location)) matchScore++;
+//           if (lost.image_url && found.image_url) {
+//   const [lostEmbedding, foundEmbedding] = await Promise.all([
+//     getImageEmbedding(lost.image_url),
+//     getImageEmbedding(found.image_url),
+//   ]);
+
+//   if (lostEmbedding && foundEmbedding) {
+//     const similarity = cosineSimilarity(lostEmbedding, foundEmbedding);
+//     if (similarity >= 0.85) {
+//       matchScore++;
+//     }
+//   }
+// }
+
+
+//           if (matchScore >= 3) {
+//             const { data: existing, error: checkError } = await supabase
+//               .from("verified_reports")
+//               .select("id")
+//               .eq("lost_id", lost.id)
+//               .eq("found_id", found.id)
+//               .maybeSingle();
+
+//             if (checkError && checkError.code !== "PGRST116") {
+//               console.error("Error checking existing match:", checkError.message);
+//               continue;
+//             }
+
+//             if (!existing) {
+//               const { error: insertError } = await supabase
+//                 .from("verified_reports")
+//                 .insert({
+//                   lost_id: lost.id,
+//                   found_id: found.id,
+//                   verified_at: new Date().toISOString(),
+//                   match_score: matchScore,
+//                   lost_email: lost.profiles?.email || null,
+//                   found_email: found.profiles?.email || null,
+//                   status: "Pending",
+//                 });
+
+//               if (!insertError) {
+//                 verified.push({ lost_id: lost.id, found_id: found.id });
+//               }
+//             }
+//           }
+//         }
+//       }
+
+//       toast.dismiss();
+
+      
+//       if (verified.length > 0) {
+//         toast.success("Reports Verified Successfully!");
+//       } else {
+//         toast.error("No Verified Reports Found.");
+//       }
+//     } catch (err) {
+//       console.error("Error in verifyMatches:", err);
+//       toast.dismiss();
+//       toast.error("Something went wrong while verifying reports.");
+//     }
+//   };
+
+
+
+const verifyMatches = async () => {
+  toast.loading("Verifying matches...");
+
+  try {
+    const verified = [];
+    const lostReports = reports.filter((r) => r.status === "Lost");
+    const foundReports = reports.filter((r) => r.status === "Found");
+
+    for (const lost of lostReports) {
+      for (const found of foundReports) {
+        let matchScore = 0;
+
+        // Step 1: Metadata matching
+        if (fuzzyMatch(lost.item_name, found.item_name)) matchScore++;
+        if (fuzzyMatch(lost.category, found.category)) matchScore++;
+        if (keywordMatch(lost.description, found.description)) matchScore++;
+        if (fuzzyMatch(lost.location, found.location)) matchScore++;
+
+        const hasImages = lost.image_url && found.image_url;
+        let imageMatched = false;
+
+        // Step 2: If both images exist and metadata score ≥ 3, check image similarity
+        if (hasImages && matchScore > 3) {
+          const [lostEmbedding, foundEmbedding] = await Promise.all([
+            getImageEmbedding(lost.image_url),
+            getImageEmbedding(found.image_url),
+          ]);
+
+          if (lostEmbedding && foundEmbedding) {
+            const similarity = cosineSimilarity(lostEmbedding, foundEmbedding);
+            if (similarity >= 0.85) {
+              matchScore++;
+              imageMatched = true;
             }
+          }
+        }
 
-            if (!existing) {
-              const { error: insertError } = await supabase
-                .from("verified_reports")
-                .insert({
-                  lost_id: lost.id,
-                  found_id: found.id,
-                  verified_at: new Date().toISOString(),
-                  match_score: matchScore,
-                  lost_email: lost.profiles?.email || null,
-                  found_email: found.profiles?.email || null,
-                  status: "Pending",
-                });
+        // Step 3: Decide whether to insert
+        const shouldInsert =
+          (!hasImages && matchScore > 4) || (hasImages && imageMatched && matchScore >= 4);
 
-              if (!insertError) {
-                verified.push({ lost_id: lost.id, found_id: found.id });
-              }
+        if (shouldInsert) {
+          const { data: existing, error: checkError } = await supabase
+            .from("verified_reports")
+            .select("id")
+            .eq("lost_id", lost.id)
+            .eq("found_id", found.id)
+            .maybeSingle();
+
+          if (checkError && checkError.code !== "PGRST116") {
+            console.error("Error checking existing match:", checkError.message);
+            continue;
+          }
+
+          if (!existing || Object.keys(existing).length === 0) {
+            const { error: insertError } = await supabase
+              .from("verified_reports")
+              .insert({
+                lost_id: lost.id,
+                found_id: found.id,
+                verified_at: new Date().toISOString(),
+                match_score: matchScore,
+                lost_email: lost.profiles?.email || null,
+                found_email: found.profiles?.email || null,
+                status: "Pending",
+              });
+
+            if (!insertError) {
+              verified.push({ lost_id: lost.id, found_id: found.id });
             }
           }
         }
       }
-
-      toast.dismiss();
-
-      
-      if (verified.length > 0) {
-        toast.success("Reports Verified Successfully!");
-      } else {
-        toast.error("No Verified Reports Found.");
-      }
-    } catch (err) {
-      console.error("Error in verifyMatches:", err);
-      toast.dismiss();
-      toast.error("Something went wrong while verifying reports.");
     }
-  };
+
+    toast.dismiss();
+
+    if (verified.length > 0) {
+      toast.success("Reports Verified Successfully!");
+    } else {
+      toast.error("No Verified Reports Found.");
+    }
+  } catch (err) {
+    console.error("Error in verifyMatches:", err);
+    toast.dismiss();
+    toast.error("Something went wrong while verifying reports.");
+  }
+};
+
+
 
   return (
     <div className="bg-white dark:bg-gray-900 min-h-screen">
