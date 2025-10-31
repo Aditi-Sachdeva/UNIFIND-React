@@ -1,39 +1,185 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+
+// import { serve } from "https://deno.land/std/http/server.ts";
+
+// serve(async (req) => {
+ 
+//   if (req.method === "OPTIONS") {
+//     return new Response("OK", {
+//       headers: {
+//         "Access-Control-Allow-Origin": "*",
+//         "Access-Control-Allow-Methods": "POST, OPTIONS",
+//         "Access-Control-Allow-Headers": "Content-Type",
+//       },
+//     });
+//   }
+//   if (req.method !== "POST") {
+//     return new Response("Method Not Allowed", {
+//       status: 405,
+//       headers: {
+//         "Access-Control-Allow-Origin": "*",
+//       },
+//     });
+//   }
+
+//   try {
+//     const { imageUrl } = await req.json();
+
+//     if (!imageUrl) {
+//       return new Response("Missing imageUrl", {
+//         status: 400,
+//         headers: {
+//           "Access-Control-Allow-Origin": "*",
+//         },
+//       });
+//     }
+
+//     const clarifaiRes = await fetch(
+//       "https://api.clarifai.com/v2/users/clarifai/apps/main/models/CLIP-ViT-L-14-DataComp-XL-s13B-b90K/versions/54772a548e6f42509cb1fd9fc43762bb/outputs",
+//       {
+//         method: "POST",
+//         headers: {
+//           Authorization: `Key ${Deno.env.get("CLARIFAI_PAT")}`, 
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({
+//           inputs: [
+//             {
+//               data: {
+//                 image: {
+//                   url: imageUrl,
+//                 },
+//               },
+//             },
+//           ],
+//         }),
+//       }
+//     );
+
+//     const result = await clarifaiRes.json();
+//     const embedding = result.outputs?.[0]?.data?.embeddings?.[0]?.vector;
+
+//     if (!embedding) {
+//       return new Response("No embedding returned", {
+//         status: 500,
+//         headers: {
+//           "Access-Control-Allow-Origin": "*",
+//         },
+//       });
+//     }
+
+//     return new Response(JSON.stringify({ embedding }), {
+//       headers: {
+//         "Content-Type": "application/json",
+//         "Access-Control-Allow-Origin": "*",
+//       },
+//     });
+//   } catch (err) {
+//     console.error("Error:", err);
+//     return new Response("Internal Server Error", {
+//       status: 500,
+//       headers: {
+//         "Access-Control-Allow-Origin": "*",
+//       },
+//     });
+//   }
+// });
+
+
+
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 serve(async (req) => {
-  const { imageUrl } = await req.json();
-
-  const response = await fetch(
-    'https://api.clarifai.com/v2/users/clarifai/apps/main/models/CLIP-ViT-L-14-DataComp-XL-s13B-b90K/versions/54772a548e6f42509cb1fd9fc43762bb/output',
-    {
-      method: 'POST',
+  // ✅ Handle CORS preflight (OPTIONS)
+  if (req.method === "OPTIONS") {
+    return new Response("ok", {
       headers: {
-        'Authorization': 'Key 70a9e4d63ee74855ae5eb8ddae489c9b',
-        'Content-Type': 'application/json',
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        // 👇 Exact lowercase names (required for browsers)
+        "Access-Control-Allow-Headers":
+          "authorization, content-type, apikey, x-client-info",
       },
-      body: JSON.stringify({
-        inputs: [
-          {
-            data: {
-              image: {
-                url: imageUrl,
-              },
-            },
-          },
-        ],
-      }),
+    });
+  }
+
+  // ✅ Handle POST requests
+  if (req.method !== "POST") {
+    return new Response("Method Not Allowed", {
+      status: 405,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+  }
+
+  try {
+    const { imageUrl } = await req.json();
+    if (!imageUrl) {
+      return new Response("Missing imageUrl", {
+        status: 400,
+        headers: { "Access-Control-Allow-Origin": "*" },
+      });
     }
-  );
 
-  const result = await response.json();
-  const embedding = result.outputs?.[0]?.data?.embeddings?.[0]?.vector;
+    // ✅ Optional auth header check
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ code: 401, message: "Missing authorization header" }),
+        {
+          status: 401,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers":
+              "authorization, content-type, apikey, x-client-info",
+          },
+        }
+      );
+    }
 
-  return new Response(JSON.stringify({ embedding }), {
-  headers: {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*', // ✅ This fixes the CORS error
-  },
+    // Call Clarifai API
+    const clarifaiRes = await fetch(
+      "https://api.clarifai.com/v2/users/clarifai/apps/main/models/CLIP-ViT-L-14-DataComp-XL-s13B-b90K/versions/54772a548e6f42509cb1fd9fc43762bb/outputs",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Key ${Deno.env.get("CLARIFAI_PAT")}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          inputs: [{ data: { image: { url: imageUrl } } }],
+        }),
+      }
+    );
 
+    const result = await clarifaiRes.json();
+    const embedding = result.outputs?.[0]?.data?.embeddings?.[0]?.vector;
+
+    if (!embedding) {
+      return new Response("No embedding returned", {
+        status: 500,
+        headers: { "Access-Control-Allow-Origin": "*" },
+      });
+    }
+
+    return new Response(JSON.stringify({ embedding }), {
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers":
+          "authorization, content-type, apikey, x-client-info",
+      },
+    });
+  } catch (err) {
+    console.error("Error:", err);
+    return new Response("Internal Server Error", {
+      status: 500,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers":
+          "authorization, content-type, apikey, x-client-info",
+      },
+    });
+  }
 });
-});
-
