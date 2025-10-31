@@ -2,8 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import supabase from '../../supabaseClient';
-import ThemeToggle from '../common/ThemeToggle';
 
+import ThemeToggle from '../common/ThemeToggle';
 export default function AdminNavbar({ username = "Admin" }) {
   const [open, setOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
