@@ -1,19 +1,40 @@
-import React from 'react';
-import supabase from '../../supabaseClient';
-import { toast } from 'react-hot-toast';
+import React from "react";
+import supabase from "../../supabaseClient";
+import { toast } from "react-hot-toast";
+import { sendMatchEmail } from "../../utils/sendEmail"; // ✅ imported utility function
 
 function VerifiedReportsTable({ reports, loading, refreshReports }) {
+
+  // ✅ Update status of verified report
   const updateStatus = async (id, newStatus) => {
+    console.log(`🔄 Updating status for report ${id} to ${newStatus}`);
     const { error } = await supabase
-      .from('verified_reports')
+      .from("verified_reports")
       .update({ status: newStatus })
-      .eq('id', id);
+      .eq("id", id);
 
     if (error) {
-      toast.error('Failed to update status');
+      console.error("❌ Failed to update status:", error.message);
+      toast.error("Failed to update status");
     } else {
       toast.success(`Marked as ${newStatus}`);
-      refreshReports(); // refresh the table
+      refreshReports();
+    }
+  };
+
+  // ✅ Call reusable email utility function
+  const handleSendEmail = async (match) => {
+    const { lost_email, found_email, lost, found } = match;
+    const itemName = lost?.item_name || found?.item_name || "an item";
+
+    console.log("📨 Sending match email for:", { lost_email, found_email, itemName });
+
+    try {
+      await sendMatchEmail(lost_email, found_email, itemName);
+      toast.success("✅ Email sent successfully!");
+    } catch (error) {
+      console.error("❌ Failed to send email:", error);
+      toast.error("Failed to send email");
     }
   };
 
@@ -26,9 +47,13 @@ function VerifiedReportsTable({ reports, loading, refreshReports }) {
       {/* Mobile Cards */}
       <div className="md:hidden space-y-4">
         {loading ? (
-          <p className="text-center text-gray-500 dark:text-gray-400">Loading verified reports...</p>
+          <p className="text-center text-gray-500 dark:text-gray-400">
+            Loading verified reports...
+          </p>
         ) : reports.length === 0 ? (
-          <p className="text-center text-gray-500 dark:text-gray-400">No verified reports found</p>
+          <p className="text-center text-gray-500 dark:text-gray-400">
+            No verified reports found
+          </p>
         ) : (
           reports.map((match) => (
             <div
@@ -42,21 +67,31 @@ function VerifiedReportsTable({ reports, loading, refreshReports }) {
               <p><span className="font-semibold">Lost Email:</span> {match.lost_email}</p>
               <p><span className="font-semibold">Found Email:</span> {match.found_email}</p>
               <p><span className="font-semibold">Status:</span> {match.status}</p>
-              {match.status === 'Pending' ? (
+
+              <div className="mt-2 space-y-1">
                 <button
-                  onClick={() => updateStatus(match.id, 'Returned')}
-                  className="mt-2 text-green-600 underline"
+                  onClick={() => handleSendEmail(match)}
+                  className="text-blue-600 underline"
                 >
-                  Mark as Returned
+                  Send Email
                 </button>
-              ) : (
-                <button
-                  onClick={() => updateStatus(match.id, 'Pending')}
-                  className="mt-2 text-yellow-600 underline"
-                >
-                  Mark as Pending
-                </button>
-              )}
+
+                {match.status === "Pending" ? (
+                  <button
+                    onClick={() => updateStatus(match.id, "Returned")}
+                    className="text-green-600 underline"
+                  >
+                    Mark as Returned
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => updateStatus(match.id, "Pending")}
+                    className="text-yellow-600 underline"
+                  >
+                    Mark as Pending
+                  </button>
+                )}
+              </div>
             </div>
           ))
         )}
@@ -80,38 +115,68 @@ function VerifiedReportsTable({ reports, loading, refreshReports }) {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="8" className="text-center text-gray-500 dark:text-gray-400 py-4">
+                <td
+                  colSpan="8"
+                  className="text-center text-gray-500 dark:text-gray-400 py-4"
+                >
                   Loading verified reports...
                 </td>
               </tr>
             ) : reports.length === 0 ? (
               <tr>
-                <td colSpan="8" className="text-center text-gray-500 dark:text-gray-400 py-4">
+                <td
+                  colSpan="8"
+                  className="text-center text-gray-500 dark:text-gray-400 py-4"
+                >
                   No verified reports found
                 </td>
               </tr>
             ) : (
               reports.map((match) => (
-                <tr key={match.id} className="hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                  <td className="px-4 py-2 text-gray-800 dark:text-white">{match.lost?.item_name}</td>
-                  <td className="px-4 py-2 text-gray-800 dark:text-white">{match.lost?.category}</td>
-                  <td className="px-4 py-2 text-gray-800 dark:text-white">{match.lost?.location}</td>
-                  <td className="px-4 py-2 text-gray-800 dark:text-white">{match.verified_at_local}</td>
-                  <td className="px-4 py-2 text-gray-800 dark:text-white">{match.lost_email}</td>
-                  <td className="px-4 py-2 text-gray-800 dark:text-white">{match.found_email}</td>
-                  <td className="px-4 py-2 text-gray-800 dark:text-white">{match.status}</td>
-                  <td className="px-4 py-2">
-                    {match.status === 'Pending' ? (
+                <tr
+                  key={match.id}
+                  className="hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                >
+                  <td className="px-4 py-2 text-gray-800 dark:text-white">
+                    {match.lost?.item_name}
+                  </td>
+                  <td className="px-4 py-2 text-gray-800 dark:text-white">
+                    {match.lost?.category}
+                  </td>
+                  <td className="px-4 py-2 text-gray-800 dark:text-white">
+                    {match.lost?.location}
+                  </td>
+                  <td className="px-4 py-2 text-gray-800 dark:text-white">
+                    {match.verified_at_local}
+                  </td>
+                  <td className="px-4 py-2 text-gray-800 dark:text-white">
+                    {match.lost_email}
+                  </td>
+                  <td className="px-4 py-2 text-gray-800 dark:text-white">
+                    {match.found_email}
+                  </td>
+                  <td className="px-4 py-2 text-gray-800 dark:text-white">
+                    {match.status}
+                  </td>
+                  <td className="px-4 py-2 space-y-1">
+                    <button
+                      onClick={() => handleSendEmail(match)}
+                      className="text-blue-600 hover:underline block"
+                    >
+                      Send Email
+                    </button>
+
+                    {match.status === "Pending" ? (
                       <button
-                        onClick={() => updateStatus(match.id, 'Returned')}
-                        className="text-green-600 hover:underline"
+                        onClick={() => updateStatus(match.id, "Returned")}
+                        className="text-green-600 hover:underline block"
                       >
                         Mark as Returned
                       </button>
                     ) : (
                       <button
-                        onClick={() => updateStatus(match.id, 'Pending')}
-                        className="text-yellow-600 hover:underline"
+                        onClick={() => updateStatus(match.id, "Pending")}
+                        className="text-yellow-600 hover:underline block"
                       >
                         Mark as Pending
                       </button>
