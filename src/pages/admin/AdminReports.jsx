@@ -183,19 +183,16 @@ export default function AdminReports() {
 
         {/* Main Content */}
         <main className="flex-1 mt-5 p-4 lg:ml-64 space-y-6">
-          {/* Search Bar */}
-          <div className="w-full flex justify-center mb-3">
+          {/* Search + Category + Buttons (All in One Row) */}
+          <div className="w-full flex flex-row flex-wrap gap-3 justify-center items-center mb-4 overflow-x-auto">
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search listings..."
-              className="px-3 py-2 bg-white dark:bg-gray-800 dark:text-white rounded-md border border-gray-300 dark:border-gray-700 w-[85%] sm:w-[500px] outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 bg-white dark:bg-gray-800 dark:text-white rounded-md border border-gray-300 dark:border-gray-700  sm:w-[300px] outline-none focus:ring-2 focus:ring-blue-500 flex-shrink-0"
             />
-          </div>
 
-          {/* Category + Buttons */}
-          <div className="w-full flex flex-row flex-wrap gap-2 justify-center items-center mb-4 overflow-x-auto">
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
@@ -217,15 +214,17 @@ export default function AdminReports() {
               <option>Water Bottles & Drinkware</option>
               <option>Others</option>
             </select>
+
             <button
               onClick={handleSearch}
               className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-white transition flex-shrink-0"
             >
               Search
             </button>
+
             <button
               onClick={verifyMatches}
-              className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md text-white transition flex-shrink-0 mr-2"
+              className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md text-white transition flex-shrink-0 ml-2"
             >
               Verify Items
             </button>
@@ -251,15 +250,6 @@ export default function AdminReports() {
                       className="text-center py-6 text-gray-400"
                     >
                       Loading reports...
-                    </td>
-                  </tr>
-                ) : filteredReports.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={headings.length}
-                      className="text-center py-6 text-gray-400"
-                    >
-                      No reports found.
                     </td>
                   </tr>
                 ) : (
@@ -312,19 +302,16 @@ export default function AdminReports() {
                   <span className="font-semibold">Item:</span> {report.item_name}
                 </p>
                 <p>
-                  <span className="font-semibold">Category:</span>{" "}
-                  {report.category}
+                  <span className="font-semibold">Category:</span> {report.category}
                 </p>
                 <p>
                   <span className="font-semibold">Status:</span> {report.status}
                 </p>
                 <p>
-                  <span className="font-semibold">Location:</span>{" "}
-                  {report.location}
+                  <span className="font-semibold">Location:</span> {report.location}
                 </p>
                 <p>
-                  <span className="font-semibold">Contact:</span>{" "}
-                  {report.contact_info}
+                  <span className="font-semibold">Contact:</span> {report.contact_info}
                 </p>
                 {report.image_url && (
                   <img
@@ -347,4 +334,3 @@ export default function AdminReports() {
     </div>
   );
 }
-  
