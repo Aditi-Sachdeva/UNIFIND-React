@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import supabase from '../../supabaseClient';
-import AdminNavbar from '../../components/admin/AdminNavbar';
-import AdminSidebar from '../../components/admin/AdminSidebar';
-import StatsCard from '../../components/admin/StatsCard';
-import VerifiedReportsTable from '../../components/admin/VerifiedReportsTable';
+import React, { useEffect, useState } from "react";
+import supabase from "../../supabaseClient";
+import AdminNavbar from "../../components/admin/AdminNavbar";
+import AdminSidebar from "../../components/admin/AdminSidebar";
+import StatsCard from "../../components/admin/StatsCard";
+import VerifiedReportsTable from "../../components/admin/VerifiedReportsTable";
 
 export default function AdminDashboard() {
   const [totalReports, setTotalReports] = useState(0);
@@ -13,66 +13,80 @@ export default function AdminDashboard() {
   const [loadingVerified, setLoadingVerified] = useState(true);
 
   useEffect(() => {
-    const fetchStats = async () => {
-      const { count: total, error: totalError } = await supabase
-        .from('reports')
-        .select('*', { count: 'exact', head: true });
-
-      const { count: verified, error: verifiedError } = await supabase
-        .from('verified_reports')
-        .select('*', { count: 'exact', head: true });
-
-      if (totalError || verifiedError) {
-        console.error('Error fetching stats:', totalError || verifiedError);
-      } else {
-        const resolvedItems = verified * 2;
-        setTotalReports(total);
-        setVerifiedReportsCount(resolvedItems);
-        setPendingReports(total - resolvedItems);
-      }
-    };
-
     fetchStats();
     fetchVerifiedReports();
   }, []);
 
+  const fetchStats = async () => {
+    try {
+      const { count: total, error: totalError } = await supabase
+        .from("reports")
+        .select("*", { count: "exact", head: true });
+
+      const { count: verified, error: verifiedError } = await supabase
+        .from("verified_reports")
+        .select("*", { count: "exact", head: true });
+
+      if (totalError || verifiedError) {
+        console.error("Error fetching stats:", totalError || verifiedError);
+        return;
+      }
+
+      const resolvedItems = (verified || 0) * 2;
+
+      setTotalReports(total || 0);
+      setVerifiedReportsCount(resolvedItems);
+      setPendingReports((total || 0) - resolvedItems);
+    } catch (err) {
+      console.error("Unexpected error fetching stats:", err.message);
+    }
+  };
+
   const fetchVerifiedReports = async () => {
     setLoadingVerified(true);
-    const { data, error } = await supabase
-      .from('verified_reports')
-      .select(`
-        id,
-        verified_at,
-        lost_email,
-        found_email,
-        lost:reports!verified_reports_lost_id_fkey (
-          item_name, category, location, contact_info, image_url
-        ),
-        found:reports!verified_reports_found_id_fkey (
-          item_name, category, location, contact_info, image_url
-        )
-      `);
+    try {
+      const { data, error } = await supabase
+        .from("verified_reports")
+        .select(`
+          id,
+          email_sent,
+          verified_at,
+          lost_email,
+          found_email,
+          lost:reports!verified_reports_lost_id_fkey (
+            item_name, category, location, contact_info, image_url
+          ),
+          found:reports!verified_reports_found_id_fkey (
+            item_name, category, location, contact_info, image_url
+          )
+        `);
 
-    if (error) {
-      console.error('Error fetching verified reports:', error.message);
-    } else {
+      if (error) {
+        console.error("Error fetching verified reports:", error.message);
+        return;
+      }
+
       const formatted = data.map((report) => ({
         ...report,
         verified_at_local: report.verified_at
-          ? new Date(report.verified_at).toLocaleString('en-IN', {
-              timeZone: 'Asia/Kolkata',
+          ? new Date(report.verified_at).toLocaleString("en-IN", {
+              timeZone: "Asia/Kolkata",
               hour12: true,
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
             })
-          : '—',
+          : "—",
       }));
+
       setVerifiedReports(formatted);
+    } catch (err) {
+      console.error("Unexpected error fetching verified reports:", err.message);
+    } finally {
+      setLoadingVerified(false);
     }
-    setLoadingVerified(false);
   };
 
   return (
@@ -82,6 +96,7 @@ export default function AdminDashboard() {
         <div className="w-full md:w-64">
           <AdminSidebar />
         </div>
+
         <main className="flex-1 h-full overflow-y-auto p-4 space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <StatsCard label="Total Reports" value={totalReports} color="blue" />

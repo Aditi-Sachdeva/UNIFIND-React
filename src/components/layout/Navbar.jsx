@@ -6,25 +6,37 @@ import supabase from '../../supabaseClient';
 import ThemeToggle from '../common/ThemeToggle';
 
 function Navbar({ user }) {
-  const [open, setOpen] = useState(false);
-  const menuRef = useRef(null);
+  const [desktopOpen, setDesktopOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const desktopMenuRef = useRef(null);
+  const mobileMenuRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
 
+  // 🔹 Logout function
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
       toast.error('Logout failed. Please try again.');
     } else {
       toast.success('Logged out successfully');
+      setDesktopOpen(false);
+      setMobileOpen(false);
       navigate('/');
     }
   };
 
+  // 🔹 Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setOpen(false);
+      if (
+        desktopMenuRef.current &&
+        !desktopMenuRef.current.contains(e.target)
+      ) {
+        setDesktopOpen(false);
+      }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(e.target)) {
+        setMobileOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -39,9 +51,7 @@ function Navbar({ user }) {
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* ✅ relative wrapper to allow centering */}
         <div className="relative flex justify-between items-center h-16">
-
           {/* Left: Logo */}
           <div className="flex items-center flex-shrink-0">
             <Link to="/" className="font-bold text-3xl text-blue-600">
@@ -49,7 +59,7 @@ function Navbar({ user }) {
             </Link>
           </div>
 
-          {/* Center: Navigation Links (Desktop only) */}
+          {/* Center: Links (Desktop only) */}
           <div className="hidden md:flex space-x-6 items-center absolute left-1/2 transform -translate-x-1/2">
             <Link
               to="/"
@@ -59,25 +69,29 @@ function Navbar({ user }) {
             </Link>
             <Link
               to="/report"
-              className={location.pathname === '/report' ? activeStyle : inactiveStyle}
+              className={
+                location.pathname === '/report' ? activeStyle : inactiveStyle
+              }
             >
               Report Item
             </Link>
             <Link
               to="/listings"
-              className={location.pathname === '/listings' ? activeStyle : inactiveStyle}
+              className={
+                location.pathname === '/listings' ? activeStyle : inactiveStyle
+              }
             >
               View Listings
             </Link>
           </div>
 
-          {/* Right: ThemeToggle + Auth/User Menu */}
+          {/* Right: Theme + User Menu (Desktop) */}
           <div className="hidden md:flex space-x-4 items-center">
             <ThemeToggle />
             {user ? (
-              <div className="relative" ref={menuRef}>
+              <div className="relative" ref={desktopMenuRef}>
                 <button
-                  onClick={() => setOpen(!open)}
+                  onClick={() => setDesktopOpen(!desktopOpen)}
                   className="flex items-center space-x-2 bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-md shadow-md text-gray-800 dark:text-gray-100 text-sm border border-gray-300 dark:border-gray-600"
                 >
                   <div className="w-7 h-7 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center">
@@ -93,11 +107,14 @@ function Navbar({ user }) {
                   <span>{user.username || user.email.split('@')[0]}</span>
                 </button>
 
-                {open && (
+                {desktopOpen && (
                   <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg z-50">
                     {user.role === 'admin' && (
                       <button
-                        onClick={() => navigate('/admin')}
+                        onClick={() => {
+                          navigate('/admin');
+                          setDesktopOpen(false);
+                        }}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                       >
                         Admin Dashboard
@@ -116,13 +133,17 @@ function Navbar({ user }) {
               <>
                 <Link
                   to="/login"
-                  className={location.pathname === '/login' ? activeStyle : inactiveStyle}
+                  className={
+                    location.pathname === '/login' ? activeStyle : inactiveStyle
+                  }
                 >
                   Login
                 </Link>
                 <Link
                   to="/signup"
-                  className={location.pathname === '/signup' ? activeStyle : inactiveStyle}
+                  className={
+                    location.pathname === '/signup' ? activeStyle : inactiveStyle
+                  }
                 >
                   Signup
                 </Link>
@@ -130,25 +151,58 @@ function Navbar({ user }) {
             )}
           </div>
 
-          {/* Mobile: Auth Buttons */}
-          <div className="flex space-x-2 items-center md:hidden">
+          {/* ✅ Mobile Section */}
+          <div className="flex space-x-2 items-center md:hidden relative">
             <ThemeToggle />
             {user ? (
-              <button
-                onClick={handleLogout}
-                className="text-white bg-red-600 border-2 border-red-600 px-3 py-1 rounded-md text-sm hover:bg-red-700 hover:border-red-700 transition"
-              >
-                Logout
-              </button>
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  className={location.pathname === '/login' ? activeStyle : inactiveStyle}
+              <div className="relative" ref={mobileMenuRef}>
+                <button
+                  onClick={() => setMobileOpen(!mobileOpen)}
+                  className="flex items-center space-x-2 bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-md shadow-md text-gray-800 dark:text-gray-100 text-sm border border-gray-300 dark:border-gray-600"
                 >
-                  Login
-                </Link>
-              </>
+                  <div className="w-7 h-7 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 text-white"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                    </svg>
+                  </div>
+                </button>
+
+                {mobileOpen && (
+                  <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg z-50">
+                    {user.role === 'admin' && (
+                      <button
+                        onClick={() => {
+                          navigate('/admin');
+                          setMobileOpen(false);
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        Admin Dashboard
+                      </button>
+                    )}
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className={
+                  location.pathname === '/login' ? activeStyle : inactiveStyle
+                }
+              >
+                Login
+              </Link>
             )}
           </div>
         </div>
