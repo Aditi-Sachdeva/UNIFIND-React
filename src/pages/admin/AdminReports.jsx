@@ -3,7 +3,7 @@ import supabase from "../../supabaseClient";
 import { toast } from "react-hot-toast";
 import AdminNavbar from "../../components/admin/AdminNavbar";
 import AdminSidebar from "../../components/admin/AdminSidebar";
-import { getImageEmbedding, cosineSimilarity } from "./../../utils/clarifai";
+import { getImageEmbedding, cosineSimilarity } from "../../utils/clarifai";
 
 export default function AdminReports() {
   const [reports, setReports] = useState([]);
@@ -30,6 +30,7 @@ export default function AdminReports() {
   }, []);
 
   const fetchReports = async () => {
+    setLoading(true);
     const { data, error } = await supabase
       .from("reports")
       .select("*, profiles(email)")
@@ -39,8 +40,8 @@ export default function AdminReports() {
       console.error("Error fetching reports:", error.message);
       toast.error("Failed to load reports");
     } else {
-      setReports(data);
-      setFilteredReports(data);
+      setReports(data || []);
+      setFilteredReports(data || []);
     }
     setLoading(false);
   };
@@ -60,7 +61,7 @@ export default function AdminReports() {
     const term = searchTerm.toLowerCase();
     const filtered = reports.filter((r) => {
       const matchesCategory =
-        selectedCategory === "" || r.category === selectedCategory;
+        !selectedCategory || r.category === selectedCategory;
       const matchesSearch =
         r.item_name?.toLowerCase().includes(term) ||
         r.location?.toLowerCase().includes(term) ||
@@ -70,7 +71,7 @@ export default function AdminReports() {
     setFilteredReports(filtered);
   };
 
-  const normalize = (str) => str?.toLowerCase().trim();
+  const normalize = (str) => str?.toLowerCase().trim() || "";
 
   const fuzzyMatch = (a, b) => {
     const normA = normalize(a);
@@ -86,7 +87,7 @@ export default function AdminReports() {
   };
 
   const verifyMatches = async () => {
-    toast.loading("Verifying matches...");
+    const loadingToast = toast.loading("Verifying matches...");
 
     try {
       const verified = [];
@@ -106,22 +107,26 @@ export default function AdminReports() {
           let imageMatched = false;
 
           if (hasImages && matchScore > 3) {
-            const [lostEmbedding, foundEmbedding] = await Promise.all([
-              getImageEmbedding(lost.image_url),
-              getImageEmbedding(found.image_url),
-            ]);
+            try {
+              const [lostEmbedding, foundEmbedding] = await Promise.all([
+                getImageEmbedding(lost.image_url),
+                getImageEmbedding(found.image_url),
+              ]);
 
-            if (lostEmbedding && foundEmbedding) {
-              const similarity = cosineSimilarity(lostEmbedding, foundEmbedding);
-              if (similarity >= 0.85) {
-                matchScore++;
-                imageMatched = true;
+              if (lostEmbedding && foundEmbedding) {
+                const similarity = cosineSimilarity(lostEmbedding, foundEmbedding);
+                if (similarity >= 0.85) {
+                  matchScore++;
+                  imageMatched = true;
+                }
               }
+            } catch (imgErr) {
+              console.warn("Image similarity error:", imgErr);
             }
           }
 
           const shouldInsert =
-            (!hasImages && matchScore > 4) ||
+            (!hasImages && matchScore >= 4) ||
             (hasImages && imageMatched && matchScore >= 4);
 
           if (shouldInsert) {
@@ -137,7 +142,7 @@ export default function AdminReports() {
               continue;
             }
 
-            if (!existing || Object.keys(existing).length === 0) {
+            if (!existing) {
               const { error: insertError } = await supabase
                 .from("verified_reports")
                 .insert({
@@ -147,7 +152,6 @@ export default function AdminReports() {
                   match_score: matchScore,
                   lost_email: lost.profiles?.email || null,
                   found_email: found.profiles?.email || null,
-                  status: "Pending",
                 });
 
               if (!insertError) {
@@ -158,16 +162,13 @@ export default function AdminReports() {
         }
       }
 
-      toast.dismiss();
-
-      if (verified.length > 0) {
-        toast.success("Reports Verified Successfully!");
-      } else {
-        toast.error("No Verified Reports Found.");
-      }
+      toast.dismiss(loadingToast);
+      verified.length > 0
+        ? toast.success("Reports Verified Successfully!")
+        : toast.error("No Verified Reports Found.");
     } catch (err) {
       console.error("Error in verifyMatches:", err);
-      toast.dismiss();
+      toast.dismiss(loadingToast);
       toast.error("Something went wrong while verifying reports.");
     }
   };
@@ -183,14 +184,14 @@ export default function AdminReports() {
 
         {/* Main Content */}
         <main className="flex-1 mt-5 p-4 lg:ml-64 space-y-6">
-          {/* Search + Category + Buttons (All in One Row) */}
+          {/* Search & Controls */}
           <div className="w-full flex flex-row flex-wrap gap-3 justify-center items-center mb-4 overflow-x-auto">
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search listings..."
-              className="px-3 py-2 bg-white dark:bg-gray-800 dark:text-white rounded-md border border-gray-300 dark:border-gray-700  sm:w-[300px] outline-none focus:ring-2 focus:ring-blue-500 flex-shrink-0"
+              className="px-3 py-2 bg-white dark:bg-gray-800 dark:text-white rounded-md border border-gray-300 dark:border-gray-700 sm:w-[300px] outline-none focus:ring-2 focus:ring-blue-500 flex-shrink-0"
             />
 
             <select
@@ -252,7 +253,7 @@ export default function AdminReports() {
                       Loading reports...
                     </td>
                   </tr>
-                ) : (
+                ) : filteredReports.length > 0 ? (
                   filteredReports.map((report) => (
                     <tr key={report.id} className="hover:bg-gray-800 transition">
                       <td className="px-4 py-4">{report.profiles?.email || "—"}</td>
@@ -286,6 +287,15 @@ export default function AdminReports() {
                       </td>
                     </tr>
                   ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={headings.length}
+                      className="text-center py-6 text-gray-400"
+                    >
+                      No reports found.
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>
@@ -302,16 +312,19 @@ export default function AdminReports() {
                   <span className="font-semibold">Item:</span> {report.item_name}
                 </p>
                 <p>
-                  <span className="font-semibold">Category:</span> {report.category}
+                  <span className="font-semibold">Category:</span>{" "}
+                  {report.category}
                 </p>
                 <p>
                   <span className="font-semibold">Status:</span> {report.status}
                 </p>
                 <p>
-                  <span className="font-semibold">Location:</span> {report.location}
+                  <span className="font-semibold">Location:</span>{" "}
+                  {report.location}
                 </p>
                 <p>
-                  <span className="font-semibold">Contact:</span> {report.contact_info}
+                  <span className="font-semibold">Contact:</span>{" "}
+                  {report.contact_info}
                 </p>
                 {report.image_url && (
                   <img

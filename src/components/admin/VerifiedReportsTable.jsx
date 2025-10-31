@@ -4,23 +4,6 @@ import { toast } from "react-hot-toast";
 import { sendMatchEmail } from "../../utils/sendEmail"; // ✅ imported utility function
 
 function VerifiedReportsTable({ reports, loading, refreshReports }) {
-  // ✅ Update status of verified report
-  const updateStatus = async (id, newStatus) => {
-    console.log(`🔄 Updating status for report ${id} to ${newStatus}`);
-    const { error } = await supabase
-      .from("verified_reports")
-      .update({ status: newStatus })
-      .eq("id", id);
-
-    if (error) {
-      console.error("❌ Failed to update status:", error.message);
-      toast.error("Failed to update status");
-    } else {
-      toast.success(`Marked as ${newStatus}`);
-      refreshReports();
-    }
-  };
-
   // ✅ Call reusable email utility function
   const handleSendEmail = async (match) => {
     const { lost_email, found_email, lost, found } = match;
@@ -60,31 +43,14 @@ function VerifiedReportsTable({ reports, loading, refreshReports }) {
               <p><span className="font-semibold">Verified At:</span> {match.verified_at_local}</p>
               <p><span className="font-semibold">Lost Email:</span> {match.lost_email}</p>
               <p><span className="font-semibold">Found Email:</span> {match.found_email}</p>
-              <p><span className="font-semibold">Status:</span> {match.status}</p>
 
-              <div className="mt-2 space-y-1">
+              <div className="mt-2">
                 <button
                   onClick={() => handleSendEmail(match)}
                   className="text-blue-600 underline"
                 >
                   Send Email
                 </button>
-
-                {match.status === "Pending" ? (
-                  <button
-                    onClick={() => updateStatus(match.id, "Returned")}
-                    className="text-green-600 underline"
-                  >
-                    Mark as Returned
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => updateStatus(match.id, "Pending")}
-                    className="text-yellow-600 underline"
-                  >
-                    Mark as Pending
-                  </button>
-                )}
               </div>
             </div>
           ))
@@ -102,7 +68,6 @@ function VerifiedReportsTable({ reports, loading, refreshReports }) {
               <th className="px-4 py-2">Verified At</th>
               <th className="px-4 py-2">Lost Email</th>
               <th className="px-4 py-2">Found Email</th>
-              <th className="px-4 py-2">Status</th>
               <th className="px-4 py-2">Actions</th>
             </tr>
           </thead>
@@ -110,7 +75,7 @@ function VerifiedReportsTable({ reports, loading, refreshReports }) {
             {loading ? (
               <tr>
                 <td
-                  colSpan="8"
+                  colSpan="7"
                   className="text-center text-gray-500 dark:text-gray-400 py-4"
                 >
                   Loading verified reports...
@@ -119,7 +84,7 @@ function VerifiedReportsTable({ reports, loading, refreshReports }) {
             ) : reports.length === 0 ? (
               <tr>
                 <td
-                  colSpan="8"
+                  colSpan="7"
                   className="text-center text-gray-500 dark:text-gray-400 py-4"
                 >
                   No verified reports found
@@ -149,32 +114,13 @@ function VerifiedReportsTable({ reports, loading, refreshReports }) {
                   <td className="px-4 py-2 text-gray-800 dark:text-white">
                     {match.found_email}
                   </td>
-                  <td className="px-4 py-2 text-gray-800 dark:text-white">
-                    {match.status}
-                  </td>
-                  <td className="px-4 py-2 space-y-1">
+                  <td className="px-4 py-2">
                     <button
                       onClick={() => handleSendEmail(match)}
-                      className="text-blue-600 hover:underline block"
+                      className="text-blue-600 hover:underline"
                     >
                       Send Email
                     </button>
-
-                    {match.status === "Pending" ? (
-                      <button
-                        onClick={() => updateStatus(match.id, "Returned")}
-                        className="text-green-600 hover:underline block"
-                      >
-                        Mark as Returned
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => updateStatus(match.id, "Pending")}
-                        className="text-yellow-600 hover:underline block"
-                      >
-                        Mark as Pending
-                      </button>
-                    )}
                   </td>
                 </tr>
               ))

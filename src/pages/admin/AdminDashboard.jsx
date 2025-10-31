@@ -25,7 +25,7 @@ export default function AdminDashboard() {
       if (totalError || verifiedError) {
         console.error('Error fetching stats:', totalError || verifiedError);
       } else {
-        const resolvedItems = verified * 2; // Each verified report resolves both lost and found
+        const resolvedItems = verified * 2;
         setTotalReports(total);
         setVerifiedReportsCount(resolvedItems);
         setPendingReports(total - resolvedItems);
@@ -43,7 +43,6 @@ export default function AdminDashboard() {
       .select(`
         id,
         verified_at,
-        status,
         lost_email,
         found_email,
         lost:reports!verified_reports_lost_id_fkey (
@@ -77,13 +76,14 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 min-h-screen">
+    <div className="bg-white dark:bg-gray-900 min-h-screen flex flex-col">
       <AdminNavbar />
-      <div className="flex">
-        <AdminSidebar />
-        <main className="flex-1 ml-48 lg:ml-64 h-[calc(100vh-64px)] overflow-y-auto p-4 space-y-6">
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="flex flex-1 flex-col md:flex-row">
+        <div className="w-full md:w-64">
+          <AdminSidebar />
+        </div>
+        <main className="flex-1 h-full overflow-y-auto p-4 space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <StatsCard label="Total Reports" value={totalReports} color="blue" />
             <StatsCard label="Resolved Items" value={verifiedReportsCount} color="green" />
             <StatsCard label="Pending Reports" value={pendingReports} color="red" />
@@ -99,4 +99,3 @@ export default function AdminDashboard() {
     </div>
   );
 }
-
