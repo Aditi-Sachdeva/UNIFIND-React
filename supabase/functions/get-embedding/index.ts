@@ -1,35 +1,27 @@
-import { serve } from "https://deno.land/std/http/server.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 serve(async (req) => {
- 
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "authorization, content-type, apikey, x-client-info",
+  };
+
+  // ✅ Handle preflight (CORS)
   if (req.method === "OPTIONS") {
-    return new Response("OK", {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
-      },
-    });
+    return new Response("ok", { headers: corsHeaders });
   }
+
+  // ✅ Reject other methods
   if (req.method !== "POST") {
-    return new Response("Method Not Allowed", {
-      status: 405,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
+    return new Response("Method Not Allowed", { status: 405, headers: corsHeaders });
   }
 
   try {
     const { imageUrl } = await req.json();
 
     if (!imageUrl) {
-      return new Response("Missing imageUrl", {
-        status: 400,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
-      });
+      return new Response("Missing imageUrl", { status: 400, headers: corsHeaders });
     }
 
     const clarifaiRes = await fetch(
@@ -37,19 +29,11 @@ serve(async (req) => {
       {
         method: "POST",
         headers: {
-          Authorization: `Key ${Deno.env.get("CLARIFAI_PAT")}`, // 🔐 Secure token from Supabase secrets
+          Authorization: `Key ${Deno.env.get("CLARIFAI_PAT")}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          inputs: [
-            {
-              data: {
-                image: {
-                  url: imageUrl,
-                },
-              },
-            },
-          ],
+          inputs: [{ data: { image: { url: imageUrl } } }],
         }),
       }
     );
@@ -57,28 +41,14 @@ serve(async (req) => {
     const result = await clarifaiRes.json();
     const embedding = result.outputs?.[0]?.data?.embeddings?.[0]?.vector;
 
-    if (!embedding) {
-      return new Response("No embedding returned", {
-        status: 500,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
-      });
-    }
-
     return new Response(JSON.stringify({ embedding }), {
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
     console.error("Error:", err);
     return new Response("Internal Server Error", {
       status: 500,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-      },
+      headers: corsHeaders,
     });
   }
 });

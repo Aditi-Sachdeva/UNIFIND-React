@@ -4,7 +4,6 @@ import { toast } from "react-hot-toast";
 import { sendMatchEmail } from "../../utils/sendEmail"; // ✅ imported utility function
 
 function VerifiedReportsTable({ reports, loading, refreshReports }) {
-
   // ✅ Update status of verified report
   const updateStatus = async (id, newStatus) => {
     console.log(`🔄 Updating status for report ${id} to ${newStatus}`);
@@ -29,13 +28,8 @@ function VerifiedReportsTable({ reports, loading, refreshReports }) {
 
     console.log("📨 Sending match email for:", { lost_email, found_email, itemName });
 
-    try {
-      await sendMatchEmail(lost_email, found_email, itemName);
-      toast.success("✅ Email sent successfully!");
-    } catch (error) {
-      console.error("❌ Failed to send email:", error);
-      toast.error("Failed to send email");
-    }
+    // ⛔ No extra toasts here — handled inside sendMatchEmail.js
+    await sendMatchEmail(lost_email, found_email, itemName);
   };
 
   return (
