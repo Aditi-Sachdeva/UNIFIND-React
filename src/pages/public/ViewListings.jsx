@@ -4,14 +4,16 @@ import Filters from '../../components/common/Filters';
 import { toast } from 'react-hot-toast';
 
 const ViewListings = ({ user }) => {
-  const [reports, setReports] = useState([]);
+  const [reports, setReports] = useState([]);//store records fetched from database
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({ search: '', category: '', status: '' });
-
+  const [filters, setFilters] = useState({ search: '', category: '', status: '' });// STORES FILTER VALUES
+  
+  //automatically fetches data according to the filter applied
   useEffect(() => {
     const fetchReports = async () => {
       if (!user) return;
 
+    //supabase query so that user ko apni khud ki report dikhe
       let query = supabase.from('reports').select('*').eq('user_id', user.id);
 
       if (filters.status) query = query.eq('status', filters.status);
@@ -148,3 +150,21 @@ const ViewListings = ({ user }) => {
 };
 
 export default ViewListings;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
