@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import AdminNavbar from '../../components/admin/AdminNavbar';
 import Sidebar from '../../components/admin/Sidebar'; 

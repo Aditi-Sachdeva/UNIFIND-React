@@ -174,7 +174,7 @@ export default function AdminReports() {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 min-h-screen">
+    <div className="bg-gray-100 dark:bg-gray-900 min-h-screen">
       <AdminNavbar />
       <div className="flex flex-col lg:flex-row">
         {/* Sidebar */}
@@ -232,118 +232,143 @@ export default function AdminReports() {
           </div>
 
           {/* Table */}
-          <div className="hidden lg:block overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 mt-8">
-
+          <div className="hidden md:block overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 max-w-full lg:max-w-[1200px] mx-auto">
             <table className="min-w-full text-sm text-left">
               <thead className="bg-blue-600 text-white sticky top-0 z-10">
                 <tr>
                   {headings.map((heading) => (
-                    <th key={heading} className="px-4 py-3 font-semibold">
+                    <th key={heading} className="px-6 py-3 font-semibold">
                       {heading}
                     </th>
                   ))}
                 </tr>
               </thead>
-             <tbody className="text-gray-900 dark:text-white divide-y divide-gray-300 dark:divide-gray-700">
-
+              <tbody className="bg-gray-50 dark:bg-gray-800 divide-y divide-gray-300 dark:divide-gray-700">
                 {loading ? (
                   <tr>
                     <td
                       colSpan={headings.length}
-                      className="text-center py-6 text-gray-400"
+                      className="text-center py-6 text-gray-500 dark:text-gray-400"
                     >
                       Loading reports...
                     </td>
                   </tr>
-                ) : filteredReports.length > 0 ? (
+                ) : filteredReports.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={headings.length}
+                      className="text-center py-6 text-gray-500 dark:text-gray-400"
+                    >
+                      No reports found.
+                    </td>
+                  </tr>
+                ) : (
                   filteredReports.map((report) => (
-                    <tr key={report.id} className="hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-
-                      <td className="px-4 py-4">{report.profiles?.email || "—"}</td>
-                      <td className="px-4 py-4">{report.item_name}</td>
-                      <td className="px-4 py-4">{report.category}</td>
-                      <td className="px-4 py-4">{report.description}</td>
-                      <td className="px-4 py-4">
+                    <tr
+                      key={report.id}
+                      className="hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                    >
+                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100 break-all">
+                        {report.profiles?.email || "—"}
+                      </td>
+                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100">
+                        {report.item_name}
+                      </td>
+                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100">
+                        {report.category}
+                      </td>
+                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100">
+                        {report.description}
+                      </td>
+                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100">
                         {new Date(report.created_at).toLocaleString()}
                       </td>
-                      <td className="px-4 py-4">{report.location}</td>
-                      <td className="px-4 py-4">{report.status}</td>
-                      <td className="px-4 py-4">{report.contact_info}</td>
-                      <td className="px-4 py-4">
+                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100">
+                        {report.location}
+                      </td>
+                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100">
+                        {report.status}
+                      </td>
+                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100">
+                        {report.contact_info}
+                      </td>
+                      <td className="px-6 py-4">
                         {report.image_url ? (
                           <img
                             src={report.image_url}
                             alt="Report"
-                            className="h-10 w-10 object-cover rounded"
+                            className="h-10 w-10 object-cover rounded-md border border-gray-300 dark:border-gray-600"
                           />
                         ) : (
                           <span className="text-gray-400">—</span>
                         )}
                       </td>
-                      <td className="px-4 py-4">
+                      <td className="px-6 py-4">
                         <button
                           onClick={() => handleDelete(report.id)}
-                          className="text-red-500 hover:underline"
+                          className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition"
                         >
                           Delete
                         </button>
                       </td>
                     </tr>
                   ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={headings.length}
-                      className="text-center py-6 text-gray-400"
-                    >
-                      No reports found.
-                    </td>
-                  </tr>
                 )}
               </tbody>
             </table>
           </div>
 
-          {/* Mobile Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:hidden">
-            {filteredReports.map((report) => (
-              <div
-                key={report.id}
-                className="p-4 bg-gray-800 rounded-lg shadow-md text-white space-y-2"
-              >
-                <p>
-                  <span className="font-semibold">Item:</span> {report.item_name}
-                </p>
-                <p>
-                  <span className="font-semibold">Category:</span>{" "}
-                  {report.category}
-                </p>
-                <p>
-                  <span className="font-semibold">Status:</span> {report.status}
-                </p>
-                <p>
-                  <span className="font-semibold">Location:</span>{" "}
-                  {report.location}
-                </p>
-                <p>
-                  <span className="font-semibold">Contact:</span>{" "}
-                  {report.contact_info}
-                </p>
-                {report.image_url && (
-                  <img
-                    src={report.image_url}
-                    alt="Report"
-                    className="w-full h-40 object-cover rounded-md"
-                  />
-                )}
-                <button
-                  onClick={() => handleDelete(report.id)}
-                  className="bg-red-600 hover:bg-red-700 px-3 py-2 mt-2 rounded-md text-white w-full"
+          {/* Mobile Card Layout */}
+          <div className="md:hidden flex flex-col gap-4">
+            {loading ? (
+              <p className="text-center text-gray-500 dark:text-gray-400">
+                Loading reports...
+              </p>
+            ) : filteredReports.length === 0 ? (
+              <p className="text-center text-gray-500 dark:text-gray-400">
+                No reports found.
+              </p>
+            ) : (
+              filteredReports.map((report) => (
+                <div
+                  key={report.id}
+                  className="bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl p-4 shadow-sm"
                 >
-                  Delete
-                </button>
-              </div>
-            ))}
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                      {report.item_name}
+                    </h3>
+                    <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                      {report.status}
+                    </span>
+                  </div>
+                  <p className="text-gray-700 dark:text-gray-300 text-sm break-all">
+                    <strong>Category:</strong> {report.category}
+                  </p>
+                  <p className="text-gray-700 dark:text-gray-300 text-sm break-all">
+                    <strong>Location:</strong> {report.location}
+                  </p>
+                  <p className="text-gray-700 dark:text-gray-300 text-sm break-all">
+                    <strong>Contact:</strong> {report.contact_info}
+                  </p>
+                  {report.image_url && (
+                    <img
+                      src={report.image_url}
+                      alt="Report"
+                      className="w-full h-40 object-cover rounded-md mt-2"
+                    />
+                  )}
+                  <div className="flex justify-end mt-3">
+                    <button
+                      onClick={() => handleDelete(report.id)}
+                      className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </main>
       </div>

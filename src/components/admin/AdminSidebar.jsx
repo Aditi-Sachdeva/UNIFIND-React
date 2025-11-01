@@ -6,8 +6,8 @@ export default function AdminSidebar() {
   const inactiveClass = "dark:text-gray-300 hover:bg-blue-600 hover:text-white";
 
   return (
-    <aside className="hidden md:block md:w-48 lg:w-64 bg-white dark:bg-gray-900 p-6 border-r border-gray-200 dark:border-gray-700 shadow-lg h-full fixed top-16 left-0 z-40">
-      <h2 className="text-lg font-semibold text-blue-500 dark:text-blue-400 mb-4 tracking-wide">
+    <aside className="hidden md:block md:w-48 lg:w-64 bg-gray-100 dark:bg-gray-900 p-6 border-r border-gray-200 dark:border-gray-700 shadow-lg h-full fixed top-16 left-0 z-40">
+      <h2 className="text-lg font-bold text-blue-600 dark:text-blue-600 mb-4 tracking-wide pl-10">
         Admin Panel
       </h2>
       <nav className="space-y-2">
