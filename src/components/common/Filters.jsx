@@ -17,14 +17,14 @@ const Filters = ({ onFilter }) => {
         placeholder="Search by item name"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="px-2.5 py-1.5 bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-200 rounded-md border border-gray-300 dark:border-gray-700 w-full md:w-60 outline-none focus:ring-2 focus:ring-blue-500"
+        className="px-3 py-2 bg-gray-100 text-gray-950 dark:bg-gray-800 dark:text-gray-200 rounded-md border border-gray-300 dark:border-gray-700 w-full md:w-60 outline-none focus:ring-2 focus:ring-blue-500"
       />
 
       {/* Category Dropdown */}
       <select
         value={category}
         onChange={(e) => setCategory(e.target.value)}
-        className="bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700 px-2.5 py-1.5 rounded-md w-full md:w-auto"
+        className="bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700 px-3 py-2 rounded-md w-full md:w-auto"
       >
         <option value="">All Categories</option>
         <option>Electronics</option>
@@ -48,7 +48,7 @@ const Filters = ({ onFilter }) => {
       <select
         value={status}
         onChange={(e) => setStatus(e.target.value)}
-        className="bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700 px-2.5 py-1.5 rounded-md w-full md:w-auto"
+        className="bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700 px-3 py-2 rounded-md w-full md:w-auto"
       >
         <option value="">All Status</option>
         <option>Lost</option>

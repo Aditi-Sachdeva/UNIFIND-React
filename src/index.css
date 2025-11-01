@@ -5,3 +5,4 @@
 @import "tailwindcss/theme" layer(theme);
 
 @custom-variant dark (&:where(.dark, .dark *));
+

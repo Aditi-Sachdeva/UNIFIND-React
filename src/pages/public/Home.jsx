@@ -4,7 +4,7 @@ import Footer from '../../components/layout/Footer';
 
 function Home({ user }) {
   return (
-    <div className="bg-white dark:bg-gray-900 min-h-screen md:min-h-[calc(100vh-64px)] md:overflow-hidden">
+    <div className="bg-gray-100 dark:bg-gray-900 min-h-screen md:min-h-[calc(100vh-64px)] md:overflow-hidden">
       <HeroSection user={user} />
       <Footer />
     </div>

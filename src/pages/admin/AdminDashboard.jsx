@@ -90,7 +90,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 min-h-screen flex flex-col">
+    <div className="bg-gray-200 dark:bg-gray-900 min-h-screen flex flex-col">
       <AdminNavbar />
       <div className="flex flex-1 flex-col md:flex-row">
         <div className="w-full md:w-64">

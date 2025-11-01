@@ -43,8 +43,8 @@ const Login = () => {
   };
 
   return (
-    <div className="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-white flex flex-col min-h-screen transition-colors duration-300 md:min-h-[calc(100vh-64px)]">
-      <div className="flex flex-grow justify-center items-center p-4 dark:bg-gray-900">
+    <div className="bg-gray-200 text-gray-900 dark:bg-gray-900 dark:text-white flex flex-col transition-colors duration-300 min-h-[calc(100vh-64px)] ">
+     <div className="flex flex-grow justify-center items-start pt-24 lg:pt-34 p-4 dark:bg-gray-900">
         <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-sm border border-gray-300 dark:border-blue-500 transition-colors duration-300">
           <h2 className="text-2xl font-bold text-center text-blue-600 dark:text-blue-400 mb-6">Login</h2>
 
