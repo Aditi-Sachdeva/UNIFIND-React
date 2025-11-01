@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 export default function AdminSidebar() {
   const linkBase = "block px-4 py-2 rounded-lg shadow-md font-medium";
   const activeClass = "bg-blue-600 text-white";
-  const inactiveClass = "bg-gray-50 dark:text-gray-300 hover:bg-blue-600 hover:text-white";
+  const inactiveClass = "dark:text-gray-300 dark:bg-gray-800 hover:bg-blue-600 hover:text-white";
 
   return (
     <aside className="hidden md:block md:w-48 lg:w-64 bg-white dark:bg-gray-900 p-6 border-r border-gray-200 dark:border-gray-700 shadow-lg h-full fixed top-16 left-0 z-40">
