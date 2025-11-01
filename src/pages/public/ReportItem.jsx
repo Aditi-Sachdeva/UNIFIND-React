@@ -1,4 +1,3 @@
-// src/pages/public/ReportItem.jsx
 import Navbar from '../../components/layout/Navbar';
 import ReportItemForm from '../../components/forms/ReportItemForm';
 

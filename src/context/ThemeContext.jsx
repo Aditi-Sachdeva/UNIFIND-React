@@ -1,12 +1,9 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
-
 const ThemeContext = createContext();
-
 export const ThemeProvider = ({ children }) => {
   const [isDark, setIsDark] = useState(false);
 
-  // ✅ Load saved theme on mount
+  // Load saved theme on mount
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "dark") {
@@ -18,7 +15,7 @@ export const ThemeProvider = ({ children }) => {
     }
   }, []);
 
-  // ✅ Toggle function
+  // Toggle function
   const toggleTheme = () => {
     setIsDark((prev) => {
       const newMode = !prev;
@@ -40,5 +37,5 @@ export const ThemeProvider = ({ children }) => {
   );
 };
 
-// ✅ Custom hook for easy access
+
 export const useTheme = () => useContext(ThemeContext);
