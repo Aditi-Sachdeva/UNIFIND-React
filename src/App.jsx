@@ -198,6 +198,7 @@ import {
   useLocation,
 } from 'react-router-dom';
 import supabase from './supabaseClient';
+import { ThemeProvider } from "./context/ThemeContext";
 
 // Public Pages
 import Home from './pages/public/Home';
@@ -375,7 +376,9 @@ function AppContent() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AppContent />
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

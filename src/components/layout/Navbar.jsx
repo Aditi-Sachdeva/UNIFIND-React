@@ -49,7 +49,7 @@ function Navbar({ user }) {
     'text-gray-900 bg-gray-200 border-2 border-gray-200 px-3 py-1 rounded-md text-sm hover:bg-blue-600 hover:text-white dark:text-white dark:bg-gray-700 dark:border-gray-700 dark:hover:bg-blue-600 dark:hover:text-white';
 
   return (
-    <nav className="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow-xl">
+    <nav className="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative flex justify-between items-center h-16">
           {/* Left: Logo */}

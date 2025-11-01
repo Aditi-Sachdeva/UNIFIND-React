@@ -79,7 +79,7 @@ export default function ManageUsers() {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 min-h-screen">
+    <div className="bg-gray-100 dark:bg-gray-900 min-h-screen">
       <AdminNavbar />
       <div className="flex flex-col lg:flex-row">
         <div className="hidden lg:block">
