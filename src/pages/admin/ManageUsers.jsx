@@ -10,9 +10,11 @@ export default function ManageUsers() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState("All Roles");
   const [loading, setLoading] = useState(true);
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   const headings = ["ID", "Username", "Email", "Role", "Actions"];
 
+  // Fetch users
   useEffect(() => {
     const fetchUsers = async () => {
       const { data, error } = await supabase
@@ -30,6 +32,7 @@ export default function ManageUsers() {
     fetchUsers();
   }, []);
 
+  // Filter users
   useEffect(() => {
     const term = searchTerm.toLowerCase();
     const filtered = users.filter((user) => {
@@ -46,17 +49,53 @@ export default function ManageUsers() {
     setFilteredUsers(filtered);
   }, [searchTerm, selectedRole, users]);
 
-  const handleDelete = async (id) => {
-    const { error } = await supabase.from("profiles").delete().eq("id", id);
-    if (error) {
-      toast.error("Failed to delete user");
-    } else {
-      toast.success("User deleted");
+  const handleDeleteClick = (id) => {
+    setConfirmDelete(id);
+  };
+
+  const confirmDeleteUser = async (id) => {
+    try {
+      // First, delete all related reports
+      const { error: reportsError } = await supabase
+        .from("reports")
+        .delete()
+        .eq("user_id", id);
+
+      if (reportsError) {
+        console.error("Error deleting reports:", reportsError);
+        toast.error(`Failed to delete user reports: ${reportsError.message}`);
+        setConfirmDelete(null);
+        return;
+      }
+
+      // Then delete the user
+      const { error: userError } = await supabase
+        .from("profiles")
+        .delete()
+        .eq("id", id);
+
+      if (userError) {
+        console.error("Delete error:", userError);
+        toast.error(`Delete failed: ${userError.message}`);
+        setConfirmDelete(null);
+        return;
+      }
+
+      // Update state to remove deleted user
       setUsers((prev) => prev.filter((user) => user.id !== id));
       setFilteredUsers((prev) => prev.filter((user) => user.id !== id));
+      toast.success("User and related reports deleted successfully");
+      setConfirmDelete(null);
+    } catch (err) {
+      console.error("Unexpected delete error:", err);
+      toast.error("Something went wrong");
+      setConfirmDelete(null);
     }
   };
 
+  const cancelDelete = () => setConfirmDelete(null);
+
+  // Toggle user role
   const handleToggleRole = async (id, currentRole) => {
     const newRole = currentRole?.toLowerCase() === "admin" ? "user" : "admin";
     const { error } = await supabase
@@ -87,16 +126,9 @@ export default function ManageUsers() {
         </div>
 
         <main className="flex-1 lg:ml-64 p-4 space-y-6 w-full">
-
           {/* Filters */}
           <div className="w-full flex justify-center">
-            <div
-              className="
-                flex flex-wrap justify-center items-center text-center mb-2 
-                gap-2 sm:gap-2 
-                [@media(max-width:640px)]:gap-4
-              "
-            >
+            <div className="flex flex-wrap justify-center items-center text-center mb-2 gap-2 sm:gap-2 [@media(max-width:640px)]:gap-4">
               <input
                 type="text"
                 value={searchTerm}
@@ -174,23 +206,44 @@ export default function ManageUsers() {
                             user.role.slice(1)
                           : "—"}
                       </td>
-                      <td className="px-6 py-4 flex gap-3 flex-wrap">
-                        <button
-                          onClick={() =>
-                            handleToggleRole(user.id, user.role)
-                          }
-                          className="text-yellow-600 dark:text-yellow-400 hover:text-yellow-800 dark:hover:text-yellow-300 transition"
-                        >
-                          {user.role?.toLowerCase() === "admin"
-                            ? "Make User"
-                            : "Make Admin"}
-                        </button>
-                        <button
-                          onClick={() => handleDelete(user.id)}
-                          className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition"
-                        >
-                          Delete
-                        </button>
+                      <td className="px-6 py-4">
+                        <div className="flex gap-3 flex-wrap items-center">
+                          <button
+                            onClick={() => handleToggleRole(user.id, user.role)}
+                            className="text-yellow-600 dark:text-yellow-400 hover:text-yellow-800 dark:hover:text-yellow-300 transition"
+                          >
+                            {user.role?.toLowerCase() === "admin"
+                              ? "Make User"
+                              : "Make Admin"}
+                          </button>
+
+                          {confirmDelete === user.id ? (
+                            <span className="flex items-center gap-2 text-sm">
+                              <span className="text-gray-700 dark:text-gray-300">
+                                Delete user and reports?
+                              </span>
+                              <button
+                                onClick={() => confirmDeleteUser(user.id)}
+                                className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 font-medium"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                onClick={cancelDelete}
+                                className="px-2 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 font-medium"
+                              >
+                                No
+                              </button>
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => handleDeleteClick(user.id)}
+                              className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition"
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -199,7 +252,7 @@ export default function ManageUsers() {
             </table>
           </div>
 
-          {/* Mobile Card View (ID Removed, Buttons in One Line) */}
+          {/* Mobile Card View */}
           <div className="md:hidden flex flex-col gap-4">
             {loading ? (
               <p className="text-center text-gray-500 dark:text-gray-400">
@@ -233,28 +286,52 @@ export default function ManageUsers() {
                     </span>
                   </div>
 
-                  {/* ID removed on mobile */}
-
                   <p className="text-gray-700 dark:text-gray-300 text-sm break-all">
                     <strong>Email:</strong> {user.email || "—"}
                   </p>
 
-                  {/* Buttons in one line on mobile */}
-                  <div className="flex flex-row justify-between items-center mt-3 gap-3">
-                    <button
-                      onClick={() => handleToggleRole(user.id, user.role)}
-                      className="text-yellow-600 dark:text-yellow-400 hover:text-yellow-800 dark:hover:text-yellow-300 transition whitespace-nowrap"
-                    >
-                      {user.role?.toLowerCase() === "admin"
-                        ? "Make User"
-                        : "Make Admin"}
-                    </button>
-                    <button
-                      onClick={() => handleDelete(user.id)}
-                      className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition whitespace-nowrap"
-                    >
-                      Delete
-                    </button>
+                  <div className="mt-3">
+                    <div className="flex justify-between items-center gap-3 mb-2">
+                      <button
+                        onClick={() => handleToggleRole(user.id, user.role)}
+                        className="text-yellow-600 dark:text-yellow-400 hover:text-yellow-800 dark:hover:text-yellow-300 transition whitespace-nowrap"
+                      >
+                        {user.role?.toLowerCase() === "admin"
+                          ? "Make User"
+                          : "Make Admin"}
+                      </button>
+
+                      {confirmDelete !== user.id && (
+                        <button
+                          onClick={() => handleDeleteClick(user.id)}
+                          className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+
+                    {confirmDelete === user.id && (
+                      <div className="flex flex-col gap-2 text-sm">
+                        <span className="text-gray-700 dark:text-gray-300">
+                          Delete user and reports?
+                        </span>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => confirmDeleteUser(user.id)}
+                            className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 font-medium"
+                          >
+                            Yes
+                          </button>
+                          <button
+                            onClick={cancelDelete}
+                            className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 font-medium"
+                          >
+                            No
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))
@@ -265,6 +342,3 @@ export default function ManageUsers() {
     </div>
   );
 }
-
-
-
