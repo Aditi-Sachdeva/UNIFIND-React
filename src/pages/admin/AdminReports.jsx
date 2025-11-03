@@ -377,8 +377,6 @@
 // }
 
 
-
-
 import React, { useEffect, useState } from "react";
 import supabase from "../../supabaseClient";
 import { toast } from "react-hot-toast";
@@ -428,7 +426,6 @@ export default function AdminReports() {
   };
 
   const handleDelete = async (id) => {
-    // ✅ Added confirmation before deleting
     const confirmed = window.confirm("Are you sure you want to delete this report?");
     if (!confirmed) return;
 
@@ -562,12 +559,10 @@ export default function AdminReports() {
     <div className="bg-gray-200 dark:bg-gray-900 min-h-screen">
       <AdminNavbar />
       <div className="flex flex-col lg:flex-row">
-        {/* Sidebar */}
         <div className="hidden lg:block">
           <AdminSidebar />
         </div>
 
-        {/* Main Content */}
         <main className="flex-1 mt-5 p-4 lg:ml-64 space-y-6">
           {/* Search & Controls */}
           <div className="w-full flex flex-row flex-wrap gap-3 justify-center items-center mb-4 overflow-x-auto">
@@ -616,13 +611,18 @@ export default function AdminReports() {
             </button>
           </div>
 
-          {/* Table */}
+          {/* ✅ Fixed Table Section */}
           <div className="hidden md:block overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 max-w-full lg:max-w-[1200px] mx-auto">
-            <table className="min-w-full text-sm text-left">
+            <table className="min-w-full text-sm text-left table-auto">
               <thead className="bg-blue-600 text-white sticky top-0 z-10">
                 <tr>
                   {headings.map((heading) => (
-                    <th key={heading} className="px-6 py-3 font-semibold">
+                    <th
+                      key={heading}
+                      className={`px-6 py-3 font-semibold ${
+                        heading === "Email" ? "text-left w-[250px]" : "text-center"
+                      }`}
+                    >
                       {heading}
                     </th>
                   ))}
@@ -653,42 +653,42 @@ export default function AdminReports() {
                       key={report.id}
                       className="hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                     >
-                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100 break-all">
+                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100 text-left truncate max-w-[250px]">
                         {report.profiles?.email || "—"}
                       </td>
-                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100">
+                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100 text-center">
                         {report.item_name}
                       </td>
-                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100">
+                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100 text-center">
                         {report.category}
                       </td>
-                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100">
+                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100 text-left truncate max-w-[250px]">
                         {report.description}
                       </td>
-                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100">
+                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100 text-center">
                         {new Date(report.created_at).toLocaleString()}
                       </td>
-                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100">
+                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100 text-center">
                         {report.location}
                       </td>
-                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100">
+                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100 text-center">
                         {report.status}
                       </td>
-                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100">
+                      <td className="px-6 py-4 text-gray-800 dark:text-gray-100 text-center">
                         {report.contact_info}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 text-center">
                         {report.image_url ? (
                           <img
                             src={report.image_url}
                             alt="Report"
-                            className="h-10 w-10 object-cover rounded-md border border-gray-300 dark:border-gray-600"
+                            className="h-10 w-10 object-cover rounded-md border border-gray-300 dark:border-gray-600 mx-auto"
                           />
                         ) : (
                           <span className="text-gray-400">—</span>
                         )}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 text-center">
                         <button
                           onClick={() => handleDelete(report.id)}
                           className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition"
@@ -760,4 +760,3 @@ export default function AdminReports() {
     </div>
   );
 }
-
