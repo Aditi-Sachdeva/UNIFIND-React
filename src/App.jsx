@@ -17,6 +17,7 @@ import ViewListings from './pages/public/ViewListings';
 import Login from './pages/public/Login';
 import SignUp from './pages/public/SignUp';
 import EditReport from './pages/public/EditReport'; 
+import ResetPassword from './pages/public/ResetPassword';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -125,6 +126,7 @@ function AppContent() {
           path="/login"
           element={loading ? null : user ? <Navigate to="/" /> : <Login />}
         />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Admin Routes */}
         <Route
@@ -135,6 +137,10 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+    
+
+
+
         <Route
           path="/admin/AdminReports"
           element={
