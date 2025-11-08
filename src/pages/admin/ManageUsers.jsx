@@ -168,6 +168,25 @@ export default function ManageUsers() {
         </div>
 
         <main className="flex-1 lg:ml-64 p-4 space-y-6 w-full">
+          {/* User Count */}
+          <div className="w-full flex justify-center">
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-700 px-6 py-3 shadow-sm">
+              <p className="text-gray-700 dark:text-gray-300 text-center">
+                <span className="font-semibold text-lg text-blue-600 dark:text-blue-400">
+                  {filteredUsers.length}
+                </span>
+                <span className="ml-2">
+                  {filteredUsers.length === 1 ? "User" : "Users"}
+                </span>
+                {(searchTerm || selectedRole !== "All Roles") && (
+                  <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
+                    (filtered from {users.length} total)
+                  </span>
+                )}
+              </p>
+            </div>
+          </div>
+
           {/* Filters */}
           <div className="w-full flex justify-center">
             <div className="flex flex-wrap justify-center items-center text-center mb-2 gap-2 sm:gap-2 [@media(max-width:640px)]:gap-4">
