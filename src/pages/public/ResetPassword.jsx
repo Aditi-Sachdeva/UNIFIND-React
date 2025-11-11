@@ -1,27 +1,24 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import supabase from '../../supabaseClient';
 import { toast } from 'react-hot-toast';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [sessionLoaded, setSessionLoaded] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Listen for PASSWORD_RECOVERY event
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth event:', event);
       if (event === 'PASSWORD_RECOVERY' && session) {
         setSessionLoaded(true);
       }
     });
 
-    // Fallback: try to get session manually
     supabase.auth.getSession().then(({ data, error }) => {
       if (error || !data.session) {
-        console.error('Session error:', error?.message);
         toast.error('Invalid or expired reset link. Please try again.');
         return;
       }
@@ -52,8 +49,8 @@ const ResetPassword = () => {
     const { error } = await supabase.auth.updateUser({ password: newPassword });
 
     if (error) {
-      console.error('Password update error:', error.message);
-      return toast.error(error.message);
+      toast.error(error.message);
+      return;
     }
 
     toast.success('Password updated successfully!');
@@ -62,38 +59,62 @@ const ResetPassword = () => {
 
   if (!sessionLoaded) {
     return (
-      <div className="flex justify-center  items-center bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white ">
+      <div className="flex justify-center items-center bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen">
         <p className="text-lg text-center">Loading reset session...</p>
       </div>
     );
   }
+
   return (
-    <div className="flex justify-center items-center  bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white px-4 min-h-[calc(100vh-64px)]">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white dark:bg-gray-800 px-5 py-20 rounded-2xl shadow-lg w-full max-w-sm flex flex-col gap-5 border border-gray-200 dark:border-gray-700"
-      >
-        <h2 className="text-2xl font-bold text-center text-blue-600 dark:text-blue-400">
-          Reset Password
-        </h2>
+    <div className="bg-gray-200 text-gray-900 dark:bg-gray-900 dark:text-white flex flex-col transition-colors duration-300 min-h-[calc(100vh-64px)]">
+      <div className="flex grow justify-center items-start pt-24 lg:pt-34 p-4 dark:bg-gray-900">
+        <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-sm border border-gray-300 dark:border-blue-500 transition-colors duration-300">
+          <h2 className="text-2xl font-bold text-center text-blue-600 dark:text-blue-400 mb-6">
+            Reset Password
+          </h2>
 
-        <input
-          type="password"
-          placeholder="Enter new password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          className="w-full p-3 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-        />
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="relative">
+              <label className="block text-sm mb-1 text-gray-800 dark:text-gray-200">New Password</label>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                placeholder="Enter new password"
+                className="w-full p-2 pr-10 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-400 dark:border-gray-600 focus:outline-none focus:border-blue-600 dark:focus:border-blue-400"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-2 top-8 sm:top-9 text-gray-600 dark:text-white"
+              >
+                {showPassword ? (
+                  <EyeSlashIcon className="h-5 w-5" />
+                ) : (
+                  <EyeIcon className="h-5 w-5" />
+                )}
+              </button>
+            </div>
 
-        <button
-          type="submit"
-          className="w-full bg-blue-600 dark:bg-blue-500 py-3 rounded-md text-white font-semibold hover:bg-blue-700 dark:hover:bg-blue-600 transition"
-        >
-          Update Password
-        </button>
-      </form>
+            <button
+              type="submit"
+              className="w-full bg-blue-600 dark:bg-blue-500 py-2 rounded-md text-white font-medium hover:bg-blue-700 dark:hover:bg-blue-600 transition"
+            >
+              Update Password
+            </button>
+          </form>
+
+          <p className="text-center text-sm text-gray-700 dark:text-gray-400 mt-4">
+            Remembered your password?{' '}
+            <a href="/login" className="text-blue-600 dark:text-blue-400 hover:underline">
+              Go back to login
+            </a>
+          </p>
+        </div>
+      </div>
     </div>
   );
-}
-export default ResetPassword;
+};
 
+export default ResetPassword;

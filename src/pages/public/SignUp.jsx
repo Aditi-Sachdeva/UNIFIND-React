@@ -5,7 +5,6 @@ import supabase from '../../supabaseClient';
 import { toast } from 'react-hot-toast';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
-
 const Signup = () => {
   const [form, setForm] = useState({
     username: '',
@@ -88,6 +87,7 @@ const Signup = () => {
           <h2 className="text-2xl font-bold text-center text-blue-600 dark:text-blue-400 mb-6">Signup</h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+
             {/* Username */}
             <div>
               <label className="block text-sm mb-1 text-gray-800 dark:text-gray-200">Username</label>
@@ -96,6 +96,7 @@ const Signup = () => {
                 name="username"
                 value={form.username}
                 onChange={handleChange}
+                placeholder="Choose a username"
                 className="w-full p-2 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-400 dark:border-gray-500 focus:outline-none focus:border-blue-600 dark:focus:border-blue-400"
               />
             </div>
@@ -108,10 +109,12 @@ const Signup = () => {
                 name="email"
                 value={form.email}
                 onChange={handleChange}
+                placeholder="Enter your email"
                 className="w-full p-2 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-400 dark:border-gray-500 focus:outline-none focus:border-blue-600 dark:focus:border-blue-400"
               />
             </div>
 
+            {/* Password */}
             <div className="relative">
               <label className="block text-sm mb-1 text-gray-800 dark:text-gray-200">Password</label>
               <input
@@ -119,6 +122,7 @@ const Signup = () => {
                 name="password"
                 value={form.password}
                 onChange={handleChange}
+                placeholder="Create a password"
                 className="w-full p-2 pr-10 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-400 dark:border-gray-500 focus:outline-none focus:border-blue-600 dark:focus:border-blue-400"
               />
               <button
@@ -142,6 +146,7 @@ const Signup = () => {
                 name="confirmPassword"
                 value={form.confirmPassword}
                 onChange={handleChange}
+                placeholder="Re-enter your password"
                 className="w-full p-2 pr-10 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-400 dark:border-gray-500 focus:outline-none focus:border-blue-600 dark:focus:border-blue-400"
               />
               <button
@@ -156,8 +161,6 @@ const Signup = () => {
                 )}
               </button>
             </div>
-
-
 
             {/* Submit */}
             <button
@@ -180,4 +183,3 @@ const Signup = () => {
   );
 };
 export default Signup;
-

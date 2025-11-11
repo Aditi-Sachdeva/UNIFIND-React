@@ -51,7 +51,6 @@ const Login = () => {
 
     const { error } = await supabase.auth.resetPasswordForEmail(form.email, {
       redirectTo: 'https://unifind-app.vercel.app/reset-password',
-
     });
 
     if (error) {
@@ -69,6 +68,7 @@ const Login = () => {
           <h2 className="text-2xl font-bold text-center text-blue-600 dark:text-blue-400 mb-6">Login</h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            
             {/* Email */}
             <div>
               <label className="block text-sm mb-1 text-gray-800 dark:text-gray-200">Email</label>
@@ -78,6 +78,7 @@ const Login = () => {
                 value={form.email}
                 onChange={handleChange}
                 required
+                placeholder="Enter your email"
                 className="w-full p-2 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-400 dark:border-gray-600 focus:outline-none focus:border-blue-600 dark:focus:border-blue-400"
               />
             </div>
@@ -91,8 +92,10 @@ const Login = () => {
                 value={form.password}
                 onChange={handleChange}
                 required
+                placeholder="Enter your password"
                 className="w-full p-2 pr-10 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-400 dark:border-gray-600 focus:outline-none focus:border-blue-600 dark:focus:border-blue-400"
               />
+
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
@@ -139,4 +142,3 @@ const Login = () => {
 };
 
 export default Login;
-
