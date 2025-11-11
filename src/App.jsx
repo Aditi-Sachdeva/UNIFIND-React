@@ -137,9 +137,6 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
-    
-
-
 
         <Route
           path="/admin/AdminReports"

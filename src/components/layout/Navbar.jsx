@@ -12,7 +12,6 @@ function Navbar({ user }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 🔹 Logout function
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
@@ -25,13 +24,9 @@ function Navbar({ user }) {
     }
   };
 
-  // 🔹 Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (
-        desktopMenuRef.current &&
-        !desktopMenuRef.current.contains(e.target)
-      ) {
+      if (desktopMenuRef.current && !desktopMenuRef.current.contains(e.target)) {
         setDesktopOpen(false);
       }
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(e.target)) {
@@ -59,30 +54,28 @@ function Navbar({ user }) {
           </div>
 
           {/* Center: Links (Desktop only) */}
-          <div className="hidden md:flex space-x-6 items-center absolute left-1/2 transform -translate-x-1/2">
-            <Link
-              to="/"
-              className={location.pathname === '/' ? activeStyle : inactiveStyle}
-            >
-              Home
-            </Link>
-            <Link
-              to="/report"
-              className={
-                location.pathname === '/report' ? activeStyle : inactiveStyle
-              }
-            >
-              Report Item
-            </Link>
-            <Link
-              to="/listings"
-              className={
-                location.pathname === '/listings' ? activeStyle : inactiveStyle
-              }
-            >
-              View Listings
-            </Link>
-          </div>
+          {!['/login', '/signup'].includes(location.pathname) && (
+            <div className="hidden md:flex space-x-6 items-center absolute left-1/2 transform -translate-x-1/2">
+              <Link
+                to="/"
+                className={location.pathname === '/' ? activeStyle : inactiveStyle}
+              >
+                Home
+              </Link>
+              <Link
+                to="/report"
+                className={location.pathname === '/report' ? activeStyle : inactiveStyle}
+              >
+                Report Item
+              </Link>
+              <Link
+                to="/listings"
+                className={location.pathname === '/listings' ? activeStyle : inactiveStyle}
+              >
+                View Listings
+              </Link>
+            </div>
+          )}
 
           {/* Right: Theme + User Menu (Desktop) */}
           <div className="hidden md:flex space-x-4 items-center">
@@ -132,17 +125,13 @@ function Navbar({ user }) {
               <>
                 <Link
                   to="/login"
-                  className={
-                    location.pathname === '/login' ? activeStyle : inactiveStyle
-                  }
+                  className={location.pathname === '/login' ? activeStyle : inactiveStyle}
                 >
                   Login
                 </Link>
                 <Link
                   to="/signup"
-                  className={
-                    location.pathname === '/signup' ? activeStyle : inactiveStyle
-                  }
+                  className={location.pathname === '/signup' ? activeStyle : inactiveStyle}
                 >
                   Signup
                 </Link>
@@ -150,7 +139,7 @@ function Navbar({ user }) {
             )}
           </div>
 
-          {/* ✅ Mobile Section */}
+          {/* Mobile Section */}
           <div className="flex space-x-2 items-center md:hidden relative">
             <ThemeToggle />
             {user ? (
@@ -196,9 +185,7 @@ function Navbar({ user }) {
             ) : (
               <Link
                 to="/login"
-                className={
-                  location.pathname === '/login' ? activeStyle : inactiveStyle
-                }
+                className={location.pathname === '/login' ? activeStyle : inactiveStyle}
               >
                 Login
               </Link>
@@ -211,5 +198,3 @@ function Navbar({ user }) {
 }
 
 export default Navbar;
-
-
