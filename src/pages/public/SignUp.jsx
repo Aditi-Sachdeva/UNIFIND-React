@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/layout/Navbar';
 import supabase from '../../supabaseClient';
 import { toast } from 'react-hot-toast';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+
 
 const Signup = () => {
   const [form, setForm] = useState({
@@ -11,6 +13,7 @@ const Signup = () => {
     password: '',
     confirmPassword: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -79,8 +82,8 @@ const Signup = () => {
   };
 
   return (
-    <div className="bg-gray-200 text-gray-900 dark:bg-gray-900 dark:text-white flex flex-col  transition-colors duration-300 min-h-[calc(100vh-64px)]">
-      <div className="flex flex-grow justify-center items-center p-4 dark:bg-gray-900">
+    <div className="bg-gray-200 text-gray-900 dark:bg-gray-900 dark:text-white flex flex-col transition-colors duration-300 min-h-[calc(100vh-64px)]">
+      <div className="flex grow justify-center items-center p-4 dark:bg-gray-900">
         <div className="bg-white dark:bg-gray-800 p-4 sm:p-8 rounded-lg shadow-lg w-full max-w-md border border-gray-300 dark:border-blue-500 transition-colors duration-300">
           <h2 className="text-2xl font-bold text-center text-blue-600 dark:text-blue-400 mb-6">Signup</h2>
 
@@ -109,29 +112,52 @@ const Signup = () => {
               />
             </div>
 
-            {/* Password */}
-            <div>
+            <div className="relative">
               <label className="block text-sm mb-1 text-gray-800 dark:text-gray-200">Password</label>
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 name="password"
                 value={form.password}
                 onChange={handleChange}
-                className="w-full p-2 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-400 dark:border-gray-500 focus:outline-none focus:border-blue-600 dark:focus:border-blue-400"
+                className="w-full p-2 pr-10 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-400 dark:border-gray-500 focus:outline-none focus:border-blue-600 dark:focus:border-blue-400"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-2 top-8 sm:top-9 text-gray-600 dark:text-white"
+              >
+                {showPassword ? (
+                  <EyeSlashIcon className="h-5 w-5" />
+                ) : (
+                  <EyeIcon className="h-5 w-5" />
+                )}
+              </button>
             </div>
 
             {/* Confirm Password */}
-            <div>
+            <div className="relative">
               <label className="block text-sm mb-1 text-gray-800 dark:text-gray-200">Confirm Password</label>
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 name="confirmPassword"
                 value={form.confirmPassword}
                 onChange={handleChange}
-                className="w-full p-2 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-400 dark:border-gray-500 focus:outline-none focus:border-blue-600 dark:focus:border-blue-400"
+                className="w-full p-2 pr-10 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-400 dark:border-gray-500 focus:outline-none focus:border-blue-600 dark:focus:border-blue-400"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-2 top-8 sm:top-9 text-gray-600 dark:text-white"
+              >
+                {showPassword ? (
+                  <EyeSlashIcon className="h-5 w-5" />
+                ) : (
+                  <EyeIcon className="h-5 w-5" />
+                )}
+              </button>
             </div>
+
+
 
             {/* Submit */}
             <button
@@ -153,5 +179,5 @@ const Signup = () => {
     </div>
   );
 };
-
 export default Signup;
+

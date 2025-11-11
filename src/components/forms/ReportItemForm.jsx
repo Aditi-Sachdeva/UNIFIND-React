@@ -1,28 +1,22 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import supabase from "../../supabaseClient";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // ✅ Added useNavigate
 
-
-const getCurrentISTDateTime = () => { // Gives current date and time in IST
-  const now = new Date(); // gives current date and time
-  const istTime = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);//coversion to milliseconds and IST
-  
-
-  //Gives exact year,month,day,hour and second
+const getCurrentISTDateTime = () => {
+  const now = new Date();
+  const istTime = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
   const year = istTime.getUTCFullYear();
-  const month = String(istTime.getUTCMonth() + 1).padStart(2, "0");//padstart=convert single digit number to double
+  const month = String(istTime.getUTCMonth() + 1).padStart(2, "0");
   const day = String(istTime.getUTCDate()).padStart(2, "0");
   const hours = String(istTime.getUTCHours()).padStart(2, "0");
   const minutes = String(istTime.getUTCMinutes()).padStart(2, "0");
   const seconds = String(istTime.getUTCSeconds()).padStart(2, "0");
-
-  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;// combine everything
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 };
 
-//Form data object hai jo gets updated whenever new values are added
 export default function ReportItemForm({ user }) {
-  const [formData, setFormData] = useState({ // usestate=variable that remember data, formData = stores data, setFormData = update data
+  const [formData, setFormData] = useState({
     itemName: "",
     category: "Electronics",
     description: "",
@@ -33,10 +27,9 @@ export default function ReportItemForm({ user }) {
     image: null,
   });
 
-  const [loading, setLoading] = useState(false);//track whether form is currently submitting or not
-  
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // ✅ Added
 
-  //list of arrays of location which is shown in dropdown
   const locationOptions = [
     "Alpha Zone", "Central Library", "Girls Hostel", "Boys Hostel", "SQ1", "SQ2",
     "Exploratorium", "Sportorium", "Turing Block", "Martin Luther Block",
@@ -114,6 +107,11 @@ export default function ReportItemForm({ user }) {
         contactInfo: "",
         image: null,
       });
+
+      // ⏳ Delay redirect by 2 seconds
+      setTimeout(() => {
+        navigate("/listings");
+      }, 1000);
     }
 
     setLoading(false);
@@ -127,7 +125,7 @@ export default function ReportItemForm({ user }) {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Row 1: Item Name + Category */}
+          {/* Item Name + Category */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
@@ -247,7 +245,7 @@ export default function ReportItemForm({ user }) {
                 name="contactInfo"
                 value={formData.contactInfo}
                 onChange={handleChange}
-                className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700 text-black dark:text-white focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700 text-black              dark:text-white focus:ring-2 focus:ring-blue-400 focus:outline-none"
                 required
               />
             </div>
@@ -266,46 +264,32 @@ export default function ReportItemForm({ user }) {
             />
           </div>
 
-          {/* Submit */}
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className={`w-full h-12 font-bold rounded transition ${
-              loading
+            className={`w-full h-12 font-bold rounded transition ${loading
                 ? "bg-blue-300 cursor-not-allowed"
                 : "bg-blue-500 hover:bg-blue-600 text-white"
-            }`}
+              }`}
           >
             {loading ? "Submitting..." : "Report Item"}
           </button>
-        {/* <p className="text-center text-sm mt-4 text-gray-700 dark:text-gray-300">
-          View your listings here{" "}
-          <Link
-            to="/listings" // ⬅️ Change this path to match your actual route
-            className="text-blue-600 dark:text-blue-400 hover:underline"
-          >
-            ViewListings
-          </Link>
-          
-        </p> */}
-        
-
         </form>
-        <div className="mt-3 text-center">
-  <p className="text-base font-medium text-gray-800 dark:text-gray-200">
-    Want to check your reports?{" "}
-    <Link
-      to="/listings"
-      className="text-blue-600 dark:text-blue-400 hover:underline hover:text-blue-700 dark:hover:text-blue-300 transition"
-    >
-      View your listings
-    </Link>
-  </p>
-</div>
 
+        {/* View Listings Link */}
+        <div className="mt-3 text-center">
+          <p className="text-base font-medium text-gray-800 dark:text-gray-200">
+            Want to check your reports?{" "}
+            <Link
+              to="/listings"
+              className="text-blue-600 dark:text-blue-400 hover:underline hover:text-blue-700 dark:hover:text-blue-300 transition"
+            >
+              View your listings
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
 }
-
-
