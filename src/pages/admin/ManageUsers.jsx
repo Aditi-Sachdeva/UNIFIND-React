@@ -180,7 +180,7 @@ export default function ManageUsers() {
                 </span>
                 {(searchTerm || selectedRole !== "All Roles") && (
                   <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
-                    (filtered from {users.length} total)
+                    ({users.length} total)
                   </span>
                 )}
               </p>
