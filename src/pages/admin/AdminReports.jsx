@@ -185,7 +185,6 @@ export default function AdminReports() {
         </div>
 
         <main className="flex-1 mt-5 p-4 lg:ml-64 space-y-6">
-          {/* Search & Controls */}
           <div className="w-full flex flex-row flex-wrap gap-3 justify-center items-center mb-4 overflow-x-auto">
             <input
               type="text"
@@ -232,7 +231,6 @@ export default function AdminReports() {
             </button>
           </div>
 
-          {/* ✅ Fixed Table Section */}
           <div className="hidden md:block overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 max-w-full lg:max-w-[1200px] mx-auto">
             <table className="min-w-full text-sm text-left table-auto">
               <thead className="bg-blue-600 text-white sticky top-0 z-10">
@@ -324,7 +322,6 @@ export default function AdminReports() {
             </table>
           </div>
 
-          {/* Mobile Card Layout */}
           <div className="md:hidden flex flex-col gap-4">
             {loading ? (
               <p className="text-center text-gray-500 dark:text-gray-400">

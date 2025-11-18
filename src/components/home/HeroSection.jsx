@@ -34,7 +34,6 @@ function HeroSection({ user }) {
           </button>
         </div>
 
-        {/* Feature Boxes (Desktop only) */}
         <div className="hidden md:flex mt-12 justify-center gap-6 w-full max-w-6xl">
           <FeatureCard title="Easy Reporting" description="Quickly submit lost and found reports." />
           <FeatureCard title="Verified Listings" description="Ensuring accurate and valid reports." />
@@ -42,7 +41,6 @@ function HeroSection({ user }) {
         </div>
       </div>
 
-      {/* Feature Boxes (Mobile only) */}
       <section className="md:hidden max-w-6xl mx-auto py-12 px-6 grid gap-6 bg-gray-100 dark:bg-gray-900">
         <FeatureCard title="Easy Reporting" description="Quickly submit lost and found reports." />
         <FeatureCard title="Verified Listings" description="Ensuring accurate and valid reports." />

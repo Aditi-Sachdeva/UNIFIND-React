@@ -10,7 +10,6 @@ import {
 import supabase from './supabaseClient';
 import { ThemeProvider } from "./context/ThemeContext";
 
-// Public Pages
 import Home from './pages/public/Home';
 import ReportItem from './pages/public/ReportItem';
 import ViewListings from './pages/public/ViewListings';
@@ -19,12 +18,10 @@ import SignUp from './pages/public/SignUp';
 import EditReport from './pages/public/EditReport'; 
 import ResetPassword from './pages/public/ResetPassword';
 
-// Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminReports from './pages/admin/AdminReports';
 import ManageUsers from './pages/admin/ManageUsers';
 
-// Components
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Navbar from './components/layout/Navbar';
 
@@ -47,7 +44,6 @@ function AppContent() {
           .eq('id', session.user.id)
           .single();
 
-        // Ensure email is synced to profiles table
         if (!data?.email && session.user.email) {
           await supabase
             .from('profiles')
@@ -116,7 +112,6 @@ function AppContent() {
       <Toaster position="top-right" />
       {!location.pathname.startsWith('/admin') && <Navbar user={user} />}
       <Routes>
-        {/* Public Routes */}
         <Route path="/" element={<Home user={user} />} />
         <Route
           path="/signup"
@@ -128,7 +123,6 @@ function AppContent() {
         />
         <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* Admin Routes */}
         <Route
           path="/admin"
           element={
@@ -155,7 +149,6 @@ function AppContent() {
           }
         />
 
-        {/* User Routes */}
         <Route
           path="/report"
           element={

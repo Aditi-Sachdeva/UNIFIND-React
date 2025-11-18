@@ -57,7 +57,6 @@ export default function ManageUsers() {
     try {
       console.log("Starting delete for user ID:", id);
       
-      // Step 1: Get user email
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("email")
@@ -75,7 +74,6 @@ export default function ManageUsers() {
       const userEmail = profile.email;
       console.log("Deleting user:", userEmail);
 
-      // Step 2: Get auth token
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session?.access_token) {
@@ -85,7 +83,6 @@ export default function ManageUsers() {
         return;
       }
 
-      // Step 3: Call Edge Function to delete user completely
       try {
         console.log("Calling Edge Function...");
         
@@ -115,7 +112,6 @@ export default function ManageUsers() {
         const result = await response.json();
         console.log("Deletion successful:", result);
 
-        // Step 4: Update UI
         setUsers((prev) => prev.filter((user) => user.id !== id));
         toast.success("User fully deleted from system");
         setConfirmDelete(null);
@@ -168,7 +164,6 @@ export default function ManageUsers() {
         </div>
 
         <main className="flex-1 lg:ml-64 p-4 space-y-6 w-full">
-          {/* User Count */}
           <div className="w-full flex justify-center">
             <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-700 px-6 py-3 shadow-sm">
               <p className="text-gray-700 dark:text-gray-300 text-center">
@@ -187,7 +182,6 @@ export default function ManageUsers() {
             </div>
           </div>
 
-          {/* Filters */}
           <div className="w-full flex justify-center">
             <div className="flex flex-wrap justify-center items-center text-center mb-2 gap-2 sm:gap-2 [@media(max-width:640px)]:gap-4">
               <input
@@ -209,7 +203,6 @@ export default function ManageUsers() {
             </div>
           </div>
 
-          {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 max-w-full lg:max-w-[1200px] mx-auto">
             <table className="min-w-full text-sm text-left">
               <thead className="bg-blue-600 text-white sticky top-0 z-10">
@@ -317,7 +310,6 @@ export default function ManageUsers() {
             </table>
           </div>
 
-          {/* Mobile Card View */}
           <div className="md:hidden flex flex-col gap-4">
             {loading ? (
               <p className="text-center text-gray-500 dark:text-gray-400">

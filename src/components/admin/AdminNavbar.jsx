@@ -41,12 +41,10 @@ export default function AdminNavbar({ username = "Admin" }) {
     <nav className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 relative">
-          {/* Logo */}
           <Link to="/" className="font-bold text-3xl md:text-3xl text-blue-600 pt-1">
             UNIFIND
           </Link>
 
-          {/* Mobile Controls */}
           <div className="md:hidden flex items-center space-x-2 pt-2">
             <ThemeToggle />
             <div className="relative" ref={mobileRef}>
@@ -93,7 +91,6 @@ export default function AdminNavbar({ username = "Admin" }) {
             </div>
           </div>
 
-          {/* Desktop Controls */}
           <div className="hidden md:flex space-x-4 items-center">
             <ThemeToggle />
             <div className="relative" ref={menuRef}>

@@ -1,7 +1,6 @@
-import { toast } from "react-hot-toast"; // ensure: npm install react-hot-toast
+import { toast } from "react-hot-toast"; 
 
 export async function sendMatchEmail(lostEmail, foundEmail, itemName) {
-  // Store loading toast id so it can be dismissed properly
   const toastId = toast.loading("Sending email...");
 
   try {
@@ -21,7 +20,7 @@ export async function sendMatchEmail(lostEmail, foundEmail, itemName) {
     const result = await response.json();
     console.log("📨 Email function result:", result);
 
-    toast.dismiss(toastId); // ensure the loading toast is cleared
+    toast.dismiss(toastId); 
 
     if (result.success) {
       toast.success("Email sent successfully!");

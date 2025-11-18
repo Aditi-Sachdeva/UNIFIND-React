@@ -46,14 +46,12 @@ function Navbar({ user }) {
     <nav className="sticky top-0 z-50 bg-slate-100 dark:bg-gray-800 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative flex justify-between items-center h-16">
-          {/* Left: Logo */}
           <div className="flex items-center flex-shrink-0">
             <Link to="/" className="font-bold text-3xl text-blue-600">
               UNIFIND
             </Link>
           </div>
 
-          {/* Center: Links (Desktop only) */}
           {!['/login', '/signup'].includes(location.pathname) && (
             <div className="hidden md:flex space-x-6 items-center absolute left-1/2 transform -translate-x-1/2">
               <Link
@@ -77,7 +75,6 @@ function Navbar({ user }) {
             </div>
           )}
 
-          {/* Right: Theme + User Menu (Desktop) */}
           <div className="hidden md:flex space-x-4 items-center">
             <ThemeToggle />
             {user ? (
@@ -139,7 +136,6 @@ function Navbar({ user }) {
             )}
           </div>
 
-          {/* Mobile Section */}
           <div className="flex space-x-2 items-center md:hidden relative">
             <ThemeToggle />
             {user ? (

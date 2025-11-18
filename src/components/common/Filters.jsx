@@ -11,7 +11,6 @@ const Filters = ({ onFilter }) => {
 
   return (
     <div className="flex flex-col md:flex-row justify-center items-center gap-3 mb-5 text-[15px]">
-      {/* Search Input */}
       <input
         type="text"
         placeholder="Search by item name"
@@ -20,7 +19,6 @@ const Filters = ({ onFilter }) => {
         className="px-3 py-2 bg-gray-100 text-gray-950 dark:bg-gray-800 dark:text-gray-200 rounded-md border border-gray-300 dark:border-gray-700 w-full md:w-60 outline-none focus:ring-2 focus:ring-blue-500"
       />
 
-      {/* Category Dropdown */}
       <select
         value={category}
         onChange={(e) => setCategory(e.target.value)}
@@ -44,7 +42,6 @@ const Filters = ({ onFilter }) => {
 
       </select>
 
-      {/* Status Dropdown */}
       <select
         value={status}
         onChange={(e) => setStatus(e.target.value)}

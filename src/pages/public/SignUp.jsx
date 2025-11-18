@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../../components/layout/Navbar';
 import supabase from '../../supabaseClient';
 import { toast } from 'react-hot-toast';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 
 const Signup = () => {
   const [form, setForm] = useState({
@@ -12,70 +11,70 @@ const Signup = () => {
     password: '',
     confirmPassword: '',
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const updatedForm = { ...form, [e.target.name]: e.target.value };
-    console.log('Form updated:', updatedForm);
-    setForm(updatedForm);
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted with:', form);
 
     const { username, email, password, confirmPassword } = form;
 
     if (!username || !email || !password || !confirmPassword) {
-      console.warn('Validation failed: Missing fields');
       return toast.error('All fields are required');
     }
+
+    const allowedDomains = ['@gmail.com', '@chitkara.edu.in'];
+    const trimmedEmail = email.trim().toLowerCase();
+    const hasValidDomain = allowedDomains.some((domain) =>
+      trimmedEmail.endsWith(domain)
+    );
+
+    if (!hasValidDomain) {
+      return toast.error('Email must be a Gmail or Chitkara email address');
+    }
+
     if (password !== confirmPassword) {
-      console.warn('Validation failed: Passwords do not match');
       return toast.error('Passwords do not match');
     }
 
-    console.log('Calling Supabase auth.signUp...');
     const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
     });
-    console.log('Supabase signup response:', { data, signUpError });
 
     if (signUpError) {
       const msg = signUpError.message.toLowerCase();
+
       if (msg.includes('already registered')) {
-        console.warn('Signup error: Email already registered');
         return toast.error('This email is already registered. Please log in instead.');
       }
-      console.error('Signup error:', signUpError.message);
+
       return toast.error(signUpError.message);
     }
 
     const userId = data?.user?.id;
-    console.log('New user ID:', userId);
 
     if (userId) {
-      console.log('Inserting profile into Supabase...');
       const { error: profileError } = await supabase
         .from('profiles')
         .insert([{ id: userId, username }]);
 
-      console.log('Profile insert result:', { profileError });
-
       if (profileError) {
         const msg = profileError.message.toLowerCase();
-        if (msg.includes('foreign key constraint') && msg.includes('profiles_id_fkey')) {
-          console.warn('Profile insert error: Foreign key constraint');
+
+        if (msg.includes('foreign key constraint')) {
           return toast.error('This email is already registered. Please log in instead.');
         }
-        console.error('Profile insert error:', profileError.message);
+
         return toast.error(profileError.message);
       }
     }
 
-    console.log('Signup successful. Navigating to login...');
     toast.success('Signup successful! Please check your email to confirm.');
     setTimeout(() => navigate('/login'), 3000);
   };
@@ -88,7 +87,6 @@ const Signup = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
 
-            {/* Username */}
             <div>
               <label className="block text-sm mb-1 text-gray-800 dark:text-gray-200">Username</label>
               <input
@@ -101,7 +99,6 @@ const Signup = () => {
               />
             </div>
 
-            {/* Email */}
             <div>
               <label className="block text-sm mb-1 text-gray-800 dark:text-gray-200">Email</label>
               <input
@@ -114,7 +111,6 @@ const Signup = () => {
               />
             </div>
 
-            {/* Password */}
             <div className="relative">
               <label className="block text-sm mb-1 text-gray-800 dark:text-gray-200">Password</label>
               <input
@@ -138,7 +134,6 @@ const Signup = () => {
               </button>
             </div>
 
-            {/* Confirm Password */}
             <div className="relative">
               <label className="block text-sm mb-1 text-gray-800 dark:text-gray-200">Confirm Password</label>
               <input
@@ -162,7 +157,6 @@ const Signup = () => {
               </button>
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               className="w-full bg-blue-600 dark:bg-blue-500 py-2 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300 text-white"
@@ -182,4 +176,5 @@ const Signup = () => {
     </div>
   );
 };
+
 export default Signup;

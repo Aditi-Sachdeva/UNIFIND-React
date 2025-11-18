@@ -4,12 +4,10 @@ const ReportsContext = createContext(undefined);
 
 export const ReportsProvider = ({ children }) => {
   const [reports, setReports] = useState(() => {
-    // Load reports from localStorage on init
     const savedReports = localStorage.getItem('unifind_reports');
     return savedReports ? JSON.parse(savedReports) : [];
   });
 
-  // Save to localStorage whenever reports change
   useEffect(() => {
     localStorage.setItem('unifind_reports', JSON.stringify(reports));
   }, [reports]);
@@ -17,9 +15,9 @@ export const ReportsProvider = ({ children }) => {
   const addReport = (report) => {
     const newReport = {
       ...report,
-      id: Date.now().toString(), // Generate unique ID
+      id: Date.now().toString(), 
       createdAt: new Date().toISOString(),
-      status: 'pending' // Admin verification status (pending/verified/rejected)
+      status: 'pending'
     };
     setReports(prev => [newReport, ...prev]);
     return newReport;

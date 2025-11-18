@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import supabase from '../../supabaseClient';
 import { toast } from 'react-hot-toast';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState('');
@@ -11,46 +11,26 @@ const ResetPassword = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY' && session) {
-        setSessionLoaded(true);
-      }
-    });
-
-    supabase.auth.getSession().then(({ data, error }) => {
+    const checkSession = async () => {
+      const { data, error } = await supabase.auth.getSession();
       if (error || !data.session) {
         toast.error('Invalid or expired reset link. Please try again.');
         return;
       }
       setSessionLoaded(true);
-    });
-
-    return () => {
-      authListener?.subscription?.unsubscribe();
     };
+    checkSession();
   }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!sessionLoaded) {
-        toast.error('Session could not be loaded. Please retry the reset link.');
-      }
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, [sessionLoaded]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!newPassword || newPassword.length < 6) {
       return toast.error('Password must be at least 6 characters');
     }
 
     const { error } = await supabase.auth.updateUser({ password: newPassword });
-
     if (error) {
-      toast.error(error.message);
-      return;
+      return toast.error(error.message);
     }
 
     toast.success('Password updated successfully!');
@@ -59,15 +39,15 @@ const ResetPassword = () => {
 
   if (!sessionLoaded) {
     return (
-      <div className="flex justify-center items-center bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen">
+      <div className="flex justify-center items-center bg-gray-200 dark:bg-gray-900 text-gray-900 dark:text-white min-h-[calc(100vh-64px)]">
         <p className="text-lg text-center">Loading reset session...</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-200 text-gray-900 dark:bg-gray-900 dark:text-white flex flex-col transition-colors duration-300 min-h-[calc(100vh-64px)]">
-      <div className="flex grow justify-center items-start pt-24 lg:pt-34 p-4 dark:bg-gray-900">
+    <div className="bg-gray-200 dark:bg-gray-900 text-gray-900 dark:text-white flex flex-col transition-colors duration-300 min-h-[calc(100vh-64px)]">
+      <div className="flex grow justify-center items-start pt-24 p-4">
         <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-sm border border-gray-300 dark:border-blue-500 transition-colors duration-300">
           <h2 className="text-2xl font-bold text-center text-blue-600 dark:text-blue-400 mb-6">
             Reset Password
@@ -87,13 +67,9 @@ const ResetPassword = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2 top-8 sm:top-9 text-gray-600 dark:text-white"
+                className="absolute right-2 top-2 text-gray-600 dark:text-white"
               >
-                {showPassword ? (
-                  <EyeSlashIcon className="h-5 w-5" />
-                ) : (
-                  <EyeIcon className="h-5 w-5" />
-                )}
+                {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
               </button>
             </div>
 

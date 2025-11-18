@@ -1,22 +1,20 @@
-import React, { useEffect, useState } from 'react'; 
-import { useNavigate } from 'react-router-dom'; // ✅ added
+import { useEffect, useState } from 'react'; 
+import { useNavigate } from 'react-router-dom'; 
 import supabase from '../../supabaseClient';
 import Filters from '../../components/common/Filters';
 import { toast } from 'react-hot-toast';
 
 const ViewListings = ({ user }) => {
-  const [reports, setReports] = useState([]);//store records fetched from database
+  const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({ search: '', category: '', status: '' });// STORES FILTER VALUES
+  const [filters, setFilters] = useState({ search: '', category: '', status: '' });
   
-  const navigate = useNavigate(); // ✅ added
+  const navigate = useNavigate(); 
 
-  //automatically fetches data according to the filter applied
   useEffect(() => {
     const fetchReports = async () => {
       if (!user) return;
 
-    //supabase query so that user ko apni khud ki report dikhe
       let query = supabase.from('reports').select('*').eq('user_id', user.id);
 
       if (filters.status) query = query.eq('status', filters.status);
@@ -60,7 +58,7 @@ const ViewListings = ({ user }) => {
   };
 
   const handleEdit = (report) => {
-    navigate(`/edit/${report.id}`); // ✅ now redirects to edit page
+    navigate(`/edit/${report.id}`); 
   };
 
   return (
@@ -108,8 +106,8 @@ const ViewListings = ({ user }) => {
                     <td className="px-4 py-2">{report.description}</td>
                     <td className="px-4 py-2">
                       {report.date_time
-                        .replace('T', ' ')      // Replace T with space
-                        .replace('+00', '')     // Remove timezone
+                        .replace('T', ' ')     
+                        .replace('+00', '')    
                         .slice(0, 16)}          
                     </td>
                     <td className="px-4 py-2">{report.location}</td>

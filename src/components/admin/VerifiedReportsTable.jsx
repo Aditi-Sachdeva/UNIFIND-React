@@ -21,7 +21,7 @@ function VerifiedReportsTable({ reports, loading, refreshReports }) {
     if (error) {
       console.error("❌ Error updating email_sent:", error.message);
     } else {
-      refreshReports(); // Refresh to get updated email_sent status
+      refreshReports(); 
     }
 
     setSending((prev) => ({ ...prev, [id]: false }));
@@ -45,7 +45,6 @@ function VerifiedReportsTable({ reports, loading, refreshReports }) {
         Verified Reports
       </p>
 
-      {/* Mobile Cards */}
       <div className="md:hidden space-y-4">
         {loading ? (
           <p className="text-center text-gray-500 dark:text-gray-400">Loading verified reports...</p>
@@ -81,7 +80,6 @@ function VerifiedReportsTable({ reports, loading, refreshReports }) {
         )}
       </div>
 
-      {/* Desktop Table */}
       <div className="hidden md:block overflow-x-auto">
         <table className="min-w-full text-left border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
           <thead className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white text-sm">

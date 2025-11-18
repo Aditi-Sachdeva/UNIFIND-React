@@ -119,7 +119,6 @@ export default function EditReport({ user }) {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Item Name & Category */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
@@ -167,7 +166,6 @@ export default function EditReport({ user }) {
             </div>
           </div>
 
-          {/* Description */}
           <div>
             <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
               Description
@@ -183,7 +181,6 @@ export default function EditReport({ user }) {
             />
           </div>
 
-          {/* Date & Location */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
@@ -223,7 +220,6 @@ export default function EditReport({ user }) {
             </div>
           </div>
 
-          {/* Status + Contact */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
@@ -258,7 +254,6 @@ export default function EditReport({ user }) {
             </div>
           </div>
 
-          {/* Upload */}
           <div>
             <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
               Upload Image
@@ -275,7 +270,6 @@ export default function EditReport({ user }) {
             />
           </div>
 
-          {/* Button */}
           <button
             type="submit"
             disabled={loading}

@@ -3,7 +3,6 @@ const ThemeContext = createContext();
 export const ThemeProvider = ({ children }) => {
   const [isDark, setIsDark] = useState(false);
 
-  // Load saved theme on mount
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "dark") {
@@ -15,7 +14,6 @@ export const ThemeProvider = ({ children }) => {
     }
   }, []);
 
-  // Toggle function
   const toggleTheme = () => {
     setIsDark((prev) => {
       const newMode = !prev;
@@ -39,3 +37,5 @@ export const ThemeProvider = ({ children }) => {
 
 
 export const useTheme = () => useContext(ThemeContext);
+
+
