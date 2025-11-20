@@ -19,7 +19,7 @@ function VerifiedReportsTable({ reports, loading, refreshReports }) {
       .eq("id", id);
 
     if (error) {
-      console.error("❌ Error updating email_sent:", error.message);
+      console.error("Error", error.message);
     } else {
       refreshReports(); 
     }

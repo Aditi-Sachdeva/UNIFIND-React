@@ -7,7 +7,7 @@ const supabase = createClient(
 
 export const getImageEmbedding = async (imageUrl) => {
   try {
-    console.log("🔍 Requesting embedding for:", imageUrl);
+    console.log("Embedding for:", imageUrl);
 
     const SUPABASE_FUNCTION_URL =
       "https://dxbvyikkyypjcllwuqqn.functions.supabase.co/get-embedding";
@@ -18,7 +18,7 @@ export const getImageEmbedding = async (imageUrl) => {
 
     const accessToken = session?.access_token;
     if (!accessToken) {
-      console.error("❌ No access token found. User might not be logged in.");
+      console.error("No access token found.");
       return null;
     }
 
@@ -33,16 +33,16 @@ export const getImageEmbedding = async (imageUrl) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("❌ Supabase function error:", errorText);
+      console.error("Supabase function error:", errorText);
       return null;
     }
 
     const { embedding } = await response.json();
-    console.log("✅ Embedding received:", embedding?.slice(0, 5));
+    console.log("Embedding received:", embedding?.slice(0, 5));
 
     return embedding;
   } catch (error) {
-    console.error("❌ Network error while fetching embedding:", error.message);
+    console.error("Error while fetching embedding:", error.message);
     return null;
   }
 };

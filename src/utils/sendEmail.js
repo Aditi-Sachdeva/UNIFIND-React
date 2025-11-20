@@ -18,7 +18,7 @@ export async function sendMatchEmail(lostEmail, foundEmail, itemName) {
     );
 
     const result = await response.json();
-    console.log("📨 Email function result:", result);
+    console.log(result);
 
     toast.dismiss(toastId); 
 
@@ -28,12 +28,10 @@ export async function sendMatchEmail(lostEmail, foundEmail, itemName) {
       toast.error("Failed to send email.");
     }
 
-    return result;
   } catch (error) {
     toast.dismiss(toastId);
-    toast.error("Error calling send-email function.");
+    toast.error("Cannot send email.");
     console.error("Error calling email function:", error);
 
-    return { success: false, message: "Error calling send-email function" };
   }
 }
